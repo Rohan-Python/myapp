@@ -232,7 +232,7 @@ def main():
             tensile_strength = st.number_input("Tensile Strength (kN/m):", value=None, placeholder="Enter value", step=0.1, format="%.1f")
             geogrid_type = st.selectbox("Geogrid Type:", options=list(geogrid_type_map.keys()))
 
-            with col2:
+        with col2:
             # Display geogrid image if available - moved to the right of input fields
             geogrid_img = get_image_base64("Geogrid.png")
             if geogrid_img:
