@@ -110,8 +110,8 @@ def calculate_u(inputs):
         phi_rad = radians(phi)
         P = 2 * u_pred * length_m * (normal_stress * tan(phi_rad) + cohesion)
 
-                                     # Calculate δ (degrees)
-                                     delta_rad = atan(P / (2 * length_m * normal_stress))
+        # Calculate δ (degrees)
+        delta_rad = atan(P / (2 * length_m * normal_stress))
         delta_deg = degrees(delta_rad)
 
         return u_pred, P, delta_deg
