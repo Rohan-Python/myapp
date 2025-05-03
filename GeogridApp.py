@@ -231,6 +231,17 @@ def main():
                                              key="bearing_members")
             tensile_strength = st.number_input("Tensile Strength (kN/m):", value=None, placeholder="Enter value", step=0.1, format="%.1f")
             geogrid_type = st.selectbox("Geogrid Type:", options=list(geogrid_type_map.keys()))
+
+            with col2:
+            # Display geogrid image if available - moved to the right of input fields
+            geogrid_img = get_image_base64("Geogrid.png")
+            if geogrid_img:
+                st.markdown(
+                    f'<img src="data:image/png;base64,{geogrid_img}" style="width: 100%;">',
+                    unsafe_allow_html=True
+                )
+            st.markdown("<p style='text-align: center; font-weight: bold;'>Geogrid Structure Reference</p>", 
+                       unsafe_allow_html=True)
             
             # Visualization controls
             st.markdown("---")
@@ -280,16 +291,7 @@ def main():
                     if u_pred is not None:
                         st.session_state.result = f"μ* = {u_pred:.4f}   |   P = {P:.2f} kN/m   |   δ = {delta_deg:.2f}°"
         
-        with col2:
-            # Display geogrid image if available - moved to the right of input fields
-            geogrid_img = get_image_base64("Geogrid.png")
-            if geogrid_img:
-                st.markdown(
-                    f'<img src="data:image/png;base64,{geogrid_img}" style="width: 100%;">',
-                    unsafe_allow_html=True
-                )
-            st.markdown("<p style='text-align: center; font-weight: bold;'>Geogrid Structure Reference</p>", 
-                       unsafe_allow_html=True)
+    
     
     # Control buttons and results
     st.markdown("---")
