@@ -108,7 +108,7 @@ def calculate_u(inputs):
         # Calculate P (kN/m)
         length_m = length_mm / 1000  # Convert to meters
         phi_rad = radians(phi)
-        P = 2 * u_pred * length_m * (normal_stress * tan(phi_rad) + cohesion
+        P = 2 * u_pred * length_m * (normal_stress * tan(phi_rad) + cohesion)
 
                                      # Calculate δ (degrees)
                                      delta_rad = atan(P / (2 * length_m * normal_stress))
