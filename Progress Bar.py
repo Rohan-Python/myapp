@@ -314,18 +314,18 @@ def main():
         if st.button("Clear All"):
             clear_all()
 
-with col2:
-    uploaded_file = st.file_uploader("📂 Upload Excel for Prediction", type=["xlsx", "xls"])
-    if uploaded_file:
-        st.session_state.uploaded_file = uploaded_file
+    with col2:
+        uploaded_file = st.file_uploader("📂 Upload Excel for Prediction", type=["xlsx", "xls"])
+        if uploaded_file:
+            st.session_state.uploaded_file = uploaded_file
 
-    if st.button("Import Excel"):
-        if 'uploaded_file' in st.session_state:
-            import_excel(st.session_state.uploaded_file)
-        else:
-            st.warning("Please upload an Excel file first.")
+        if st.button("Import Excel"):
+            if 'uploaded_file' in st.session_state:
+                import_excel(st.session_state.uploaded_file)
+            else:
+                st.warning("Please upload an Excel file first.")
 
-    download_template()
+        download_template()
 
 
 
