@@ -93,5 +93,6 @@ urllib3==2.4.0
 wcwidth==0.2.13
 Werkzeug==3.1.3
 wrapt==1.17.2
+XlsxWriter
 zope.event==5.0
 zope.interface==7.2
