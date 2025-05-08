@@ -315,9 +315,11 @@ def main():
             clear_all()
 
     with col2:
-        if st.button("Import Excel"):
-            import_excel()
-        download_template()
+    uploaded_file = st.file_uploader("📂 Import Excel", type=["xlsx", "xls"])
+    if uploaded_file:
+        import_excel(uploaded_file)
+    download_template()
+
 
 
     with col3:
@@ -370,62 +372,61 @@ PET BIAXIAL: 6, PET UNIAXIAL: 7"""
     st.warning(disclaimer)
 
 
-def import_excel():
-    uploaded_file = st.file_uploader("Choose an Excel file", type=["xlsx", "xls"])
-    if uploaded_file is not None:
-        try:
-            df = pd.read_excel(uploaded_file)
+def import_excel(uploaded_file):
+    try:
+        df = pd.read_excel(uploaded_file)
 
-            # Check required columns
-            required_cols = ['phi', 'cohesion', 'normal_stress', 'length', 'soil_classification',
-                             'd50', 'unit_weight', 'water_content', 'geogrid_type', 'bearing_members',
-                             'md_aperture', 'cmd_aperture', 'tensile_strength']
-            if not all(col in df.columns for col in required_cols):
-                st.error("Missing required columns in the Excel file.")
-                return
+        # Validate columns
+        required_cols = ['phi', 'cohesion', 'normal_stress', 'length', 'soil_classification',
+                         'd50', 'unit_weight', 'water_content', 'geogrid_type', 'bearing_members',
+                         'md_aperture', 'cmd_aperture', 'tensile_strength']
 
-            # Convert categorical to numeric
-            df['soil_classification'] = df['soil_classification'].map(classification_map)
-            df['geogrid_type'] = df['geogrid_type'].map(geogrid_type_map)
+        if not all(col in df.columns for col in required_cols):
+            st.error("Missing required columns in the Excel file.")
+            return
 
-            # Prediction with progress bar
-            progress_bar = st.progress(0)
-            status_text = st.empty()
-            results = []
+        # Convert categorical to numeric
+        df['soil_classification'] = df['soil_classification'].map(classification_map)
+        df['geogrid_type'] = df['geogrid_type'].map(geogrid_type_map)
 
-            for idx in range(len(df)):
-                row = df.iloc[idx]
-                inputs = np.array([
-                    row['phi'], row['cohesion'], row['normal_stress'], row['length'],
-                    row['soil_classification'], row['d50'], row['unit_weight'],
-                    row['water_content'], row['geogrid_type'], row['bearing_members'],
-                    row['md_aperture'], row['cmd_aperture'], row['tensile_strength']
-                ], dtype=np.float32).reshape(1, -1)
+        # Prediction with progress bar
+        progress_bar = st.progress(0)
+        status_text = st.empty()
+        results = []
 
-                u_pred, P, delta_deg = calculate_u(inputs)
-                results.append([u_pred, P, delta_deg])
+        for idx in range(len(df)):
+            row = df.iloc[idx]
+            inputs = np.array([
+                row['phi'], row['cohesion'], row['normal_stress'], row['length'],
+                row['soil_classification'], row['d50'], row['unit_weight'],
+                row['water_content'], row['geogrid_type'], row['bearing_members'],
+                row['md_aperture'], row['cmd_aperture'], row['tensile_strength']
+            ], dtype=np.float32).reshape(1, -1)
 
-                # Update progress
-                progress = (idx + 1) / len(df)
-                progress_bar.progress(min(progress, 1.0))
-                status_text.text(f"Processing row {idx + 1} of {len(df)}")
+            u_pred, P, delta_deg = calculate_u(inputs)
+            results.append([u_pred, P, delta_deg])
 
-            # Add results
-            df[['predicted_mu', 'P', 'delta']] = results
+            # Update progress
+            progress = (idx + 1) / len(df)
+            progress_bar.progress(progress)
+            status_text.text(f"Processing row {idx + 1} of {len(df)}")
 
-            # Convert back to categorical for display
-            inv_classification_map = {v: k for k, v in classification_map.items()}
-            inv_geogrid_type_map = {v: k for k, v in geogrid_type_map.items()}
-            df['soil_classification'] = df['soil_classification'].map(inv_classification_map)
-            df['geogrid_type'] = df['geogrid_type'].map(inv_geogrid_type_map)
+        # Append results
+        df[['predicted_mu', 'P', 'delta']] = results
 
-            # Save to session
-            st.session_state.data = df
-            st.success(f"✅ Predictions completed for {len(df)} rows.")
-            st.dataframe(df)
+        # Convert back to categorical
+        inv_classification_map = {v: k for k, v in classification_map.items()}
+        inv_geogrid_type_map = {v: k for k, v in geogrid_type_map.items()}
+        df['soil_classification'] = df['soil_classification'].map(inv_classification_map)
+        df['geogrid_type'] = df['geogrid_type'].map(inv_geogrid_type_map)
 
-        except Exception as e:
-            st.error(f"Failed to import and predict:\n{e}")
+        st.session_state.data = df  # ✅ This makes Export work
+        st.success(f"✅ Predictions completed for {len(df)} rows.")
+        st.dataframe(df)
+
+    except Exception as e:
+        st.error(f"❌ Failed to import and predict:\n{e}")
+
 
 
 
