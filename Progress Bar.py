@@ -376,57 +376,57 @@ def import_excel():
         try:
             df = pd.read_excel(uploaded_file)
 
-            # Check if required columns are present
+            # Check required columns
             required_cols = ['phi', 'cohesion', 'normal_stress', 'length', 'soil_classification',
                              'd50', 'unit_weight', 'water_content', 'geogrid_type', 'bearing_members',
                              'md_aperture', 'cmd_aperture', 'tensile_strength']
-
             if not all(col in df.columns for col in required_cols):
                 st.error("Missing required columns in the Excel file.")
                 return
 
-            # Convert categorical data to numerical
+            # Convert categorical to numeric
             df['soil_classification'] = df['soil_classification'].map(classification_map)
             df['geogrid_type'] = df['geogrid_type'].map(geogrid_type_map)
 
-            # Make predictions with progress bar
-            results = []
+            # Prediction with progress bar
             progress_bar = st.progress(0)
             status_text = st.empty()
+            results = []
 
-            for idx, row in enumerate(df.iterrows(), start=1):
+            for idx in range(len(df)):
+                row = df.iloc[idx]
                 inputs = np.array([
-                    row[1]['phi'], row[1]['cohesion'], row[1]['normal_stress'], row[1]['length'],
-                    row[1]['soil_classification'], row[1]['d50'], row[1]['unit_weight'],
-                    row[1]['water_content'], row[1]['geogrid_type'], row[1]['bearing_members'],
-                    row[1]['md_aperture'], row[1]['cmd_aperture'], row[1]['tensile_strength']
+                    row['phi'], row['cohesion'], row['normal_stress'], row['length'],
+                    row['soil_classification'], row['d50'], row['unit_weight'],
+                    row['water_content'], row['geogrid_type'], row['bearing_members'],
+                    row['md_aperture'], row['cmd_aperture'], row['tensile_strength']
                 ], dtype=np.float32).reshape(1, -1)
 
                 u_pred, P, delta_deg = calculate_u(inputs)
                 results.append([u_pred, P, delta_deg])
 
-                progress = idx / len(df)
+                # Update progress
+                progress = (idx + 1) / len(df)
                 progress_bar.progress(min(progress, 1.0))
-                status_text.text(f"Processing row {idx} of {len(df)}")
+                status_text.text(f"Processing row {idx + 1} of {len(df)}")
 
-            status_text.text("✅ Prediction complete!")
-
-            # Add results to dataframe
+            # Add results
             df[['predicted_mu', 'P', 'delta']] = results
 
-            # Convert numerical values back to categorical for display
+            # Convert back to categorical for display
             inv_classification_map = {v: k for k, v in classification_map.items()}
             inv_geogrid_type_map = {v: k for k, v in geogrid_type_map.items()}
-
             df['soil_classification'] = df['soil_classification'].map(inv_classification_map)
             df['geogrid_type'] = df['geogrid_type'].map(inv_geogrid_type_map)
 
+            # Save to session
             st.session_state.data = df
-            st.success(f"Predictions completed for {len(df)} rows.")
+            st.success(f"✅ Predictions completed for {len(df)} rows.")
             st.dataframe(df)
 
         except Exception as e:
-            st.error(f"Failed to import and predict: {e}\n\nPlease ensure your Excel file matches the required format.")
+            st.error(f"Failed to import and predict:\n{e}")
+
 
 
 def export_excel():
