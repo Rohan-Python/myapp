@@ -315,10 +315,10 @@ def main():
             clear_all()
 
     with col2:
-    uploaded_file = st.file_uploader("📂 Import Excel", type=["xlsx", "xls"])
-    if uploaded_file:
-        import_excel(uploaded_file)
-    download_template()
+        uploaded_file = st.file_uploader("📂 Import Excel", type=["xlsx", "xls"])
+        if uploaded_file:
+            import_excel(uploaded_file)
+        download_template()
 
 
 
