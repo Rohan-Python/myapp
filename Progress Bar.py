@@ -372,7 +372,16 @@ PET BIAXIAL: 6, PET UNIAXIAL: 7"""
     st.warning(disclaimer)
 
 
-def import_excel(uploaded_file):
+def import_excel():
+    if 'uploaded_file' not in st.session_state:
+        st.session_state.uploaded_file = st.file_uploader("📂 Choose an Excel file", type=["xlsx", "xls"])
+
+    uploaded_file = st.session_state.uploaded_file
+
+    if uploaded_file is None:
+        st.warning("📂 Please upload an Excel file to begin predictions.")
+        return
+
     try:
         df = pd.read_excel(uploaded_file)
 
@@ -385,14 +394,14 @@ def import_excel(uploaded_file):
             st.error("Missing required columns in the Excel file.")
             return
 
-        # Convert categorical to numeric
+        # Map categorical values
         df['soil_classification'] = df['soil_classification'].map(classification_map)
         df['geogrid_type'] = df['geogrid_type'].map(geogrid_type_map)
 
-        # Prediction with progress bar
+        # Predict with progress bar
+        results = []
         progress_bar = st.progress(0)
         status_text = st.empty()
-        results = []
 
         for idx in range(len(df)):
             row = df.iloc[idx]
@@ -411,21 +420,22 @@ def import_excel(uploaded_file):
             progress_bar.progress(progress)
             status_text.text(f"Processing row {idx + 1} of {len(df)}")
 
-        # Append results
+        # Assign predictions
         df[['predicted_mu', 'P', 'delta']] = results
 
-        # Convert back to categorical
+        # Convert back to labels
         inv_classification_map = {v: k for k, v in classification_map.items()}
         inv_geogrid_type_map = {v: k for k, v in geogrid_type_map.items()}
         df['soil_classification'] = df['soil_classification'].map(inv_classification_map)
         df['geogrid_type'] = df['geogrid_type'].map(inv_geogrid_type_map)
 
-        st.session_state.data = df  # ✅ This makes Export work
+        st.session_state.data = df
         st.success(f"✅ Predictions completed for {len(df)} rows.")
         st.dataframe(df)
 
     except Exception as e:
         st.error(f"❌ Failed to import and predict:\n{e}")
+
 
 
 
