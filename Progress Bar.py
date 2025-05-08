@@ -372,9 +372,8 @@ PET BIAXIAL: 6, PET UNIAXIAL: 7"""
     st.warning(disclaimer)
 
 
-def import_excel():
-    if 'uploaded_file' not in st.session_state:
-        st.session_state.uploaded_file = st.file_uploader("📂 Choose an Excel file", type=["xlsx", "xls"])
+def import_excel(uploaded_file):
+   
 
     uploaded_file = st.session_state.uploaded_file
 
