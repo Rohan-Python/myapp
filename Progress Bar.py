@@ -34,7 +34,7 @@ class GeogridPINN(tf.keras.Model):
 # Load model
 def load_model():
     try:
-        model_path = '9157.keras'
+        model_path = 'best_model9178.keras'
         custom_objects = {
             'GeogridModels>GeogridPINN': GeogridPINN,
             'GeogridPINN' : GeogridPINN
