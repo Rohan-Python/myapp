@@ -14,7 +14,7 @@ from io import BytesIO
 
 
 # Model class
-@keras.saving.register_keras_serializable()
+@keras.saving.register_keras_serializable(package='GeogridModels', name='GeogridPINN')
 class GeogridPINN(tf.keras.Model):
     def __init__(self, hidden_layers=3, units_per_layer=1024, **kwargs):
         super().__init__(**kwargs)
@@ -35,7 +35,11 @@ class GeogridPINN(tf.keras.Model):
 def load_model():
     try:
         model_path = '9157.keras'
-        model = tf.keras.models.load_model(model_path, custom_objects={'GeogridPINN': GeogridPINN})
+        custom_objects = {
+            'GeogridModels>GeogridPINN': GeogridPINN,
+            'GeogridPINN' : GeogridPINN
+        }
+        model = tf.keras.models.load_model(model_path, custom_objects=custom_objects)
         print("Model loaded successfully!")
         return model
     except Exception as e:
