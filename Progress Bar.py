@@ -177,19 +177,24 @@ def main():
 
     if csir_logo and col1:
         col1.markdown(
-            f'<img src="data:image/png;base64,{csir_logo}" style="height: 80px;">',
+            f'<img src="data:image/png;base64,{csir_logo}" style="height: 100px;">',
             unsafe_allow_html=True
         )
 
     col2.markdown(
-        '<p class="header-text">Pullout Interaction Coefficient Predictor using Physics-Informed Neural Network (PINN)<br>'
-        'Developed in collaboration with CSIR-CRRI and VNIT</p>',
+        '''
+        <p style="font-size: 24px; font-weight: bold; text-align: center;">
+            Pullout Interaction Coefficient Predictor using Physics-Informed Neural Network (PINN)<br>
+            Developed in collaboration with CSIR-CRRI and VNIT
+        </p>
+        ''',
         unsafe_allow_html=True
     )
 
+
     if vnit_logo and col3:
         col3.markdown(
-            f'<img src="data:image/png;base64,{vnit_logo}" style="height: 100px;">',
+            f'<img src="data:image/png;base64,{vnit_logo}" style="height: 150px;">',
             unsafe_allow_html=True
         )
 
