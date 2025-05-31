@@ -114,11 +114,8 @@ def calculate_u(inputs):
         phi_rad = radians(phi)
         P = 2 * u_pred * length_m * (normal_stress * tan(phi_rad) + cohesion)
 
-        # Calculate δ (degrees)
-        delta_deg = 2*(phi)/3
-        
 
-        return u_pred, P, delta_deg
+        return u_pred, P
     except Exception as e:
         st.error(f"Calculation error: {e}")
         return None, None, None
@@ -305,10 +302,10 @@ def main():
                         tensile_strength
                     ], dtype=np.float32).reshape(1, -1)
 
-                    u_pred, P, delta_deg = calculate_u(inputs)
+                    u_pred, P = calculate_u(inputs)
 
                     if u_pred is not None:
-                        st.session_state.result = f"μ* = {u_pred:.4f}   |   P = {P:.2f} kN/m   |   δ = {delta_deg:.2f}°"
+                        st.session_state.result = f"μ* = {u_pred:.4f}   |   P = {P:.2f} kN/m "
 
     # Control buttons and results
     st.markdown("---")
@@ -424,8 +421,8 @@ def import_excel(uploaded_file):
                 row['md_aperture'], row['cmd_aperture'], row['tensile_strength']
             ], dtype=np.float32).reshape(1, -1)
 
-            u_pred, P, delta_deg = calculate_u(inputs)
-            results.append([u_pred, P, delta_deg])
+            u_pred, P = calculate_u(inputs)
+            results.append([u_pred, P])
 
             # Update progress
             progress = (idx + 1) / len(df)
@@ -433,7 +430,7 @@ def import_excel(uploaded_file):
             status_text.text(f"Processing row {idx + 1} of {len(df)}")
 
         # Assign predictions
-        df[['predicted_mu', 'P', 'delta']] = results
+        df[['predicted_mu', 'P']] = results
 
         # Convert back to labels
         inv_classification_map = {v: k for k, v in classification_map.items()}
