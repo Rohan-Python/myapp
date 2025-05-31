@@ -220,7 +220,7 @@ def main():
             soil_img = get_image_base64("PulloutboxDiagram.jpg")
             if soil_img:
                 st.markdown(
-                    f'<img src="data:image/jpg;base64,{soil_img}" style="width: 175%; max-width: 500px;">',
+                    f'<img src="data:image/jpg;base64,{soil_img}" style="width: 100%; max-width: 800px;">',
                     unsafe_allow_html=True
                 )
             st.markdown("<p style='text-align: center; font-weight: bold;'>Soil-Geogrid Interaction</p>",
