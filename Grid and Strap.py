@@ -51,23 +51,25 @@ def load_geogrid_model():
 # Geo Model (Updated)
 # =================================================================
 
+# =================================================================
+# Geostrap Model Loader (Updated for xgboost 1.7.2)
+# =================================================================
+
 def load_geostrap_model():
     """Load the saved XGBoost model and feature names"""
     try:
-        # Load with safe mode to avoid GPU issues
         model = joblib.load('model_artifacts/best_xgboost_model.joblib')
-        
-        # If model was trained with GPU but running on CPU
-        if hasattr(model, 'gpu_id'):
-            model.set_params(gpu_id=-1)  # Force CPU mode
-            
         feature_names = joblib.load('model_artifacts/feature_names.joblib')
-        print("Geostrap model loaded successfully!")
+        
+        # Verify we have exactly 11 features
+        if len(feature_names) != 11:
+            st.error(f"Model expects 11 features, got {len(feature_names)}")
+            return None, None
+            
         return model, feature_names
     except Exception as e:
-        st.error(f"Error loading geostrap model: {e}")
-        raise
-
+        st.error(f"Model loading failed: {str(e)}")
+        return None, None
 def predict_geostrap(model, input_data):
     """
     Make predictions using the geostrap model
