@@ -233,21 +233,7 @@ def calculate_geostrap_u(inputs):
 # =================================================================
 
 def main():
-    def check_versions():
-    """Verify required package versions"""
-    try:
-        import xgboost, sklearn, joblib, numpy
-        st.write(f"""
-        - XGBoost: {xgboost.__version__} (required: 1.7.2)
-        - scikit-learn: {sklearn.__version__} (required: 1.4.2)
-        - joblib: {joblib.__version__} (required: 1.2)
-        - numpy: {numpy.__version__} (required: 2.0.0)
-        """)
-    except ImportError as e:
-        st.error(f"Import error: {str(e)}")
-
-# In your main():
-check_versions()
+    
     st.set_page_config(layout="wide", page_title="μ* Prediction Tool")
 
     # Load models
