@@ -52,16 +52,21 @@ def load_geogrid_model():
 # =================================================================
 
 def load_geostrap_model():
-    """Load the saved XGBoost model and feature names"""
+    """Load the saved XGBoost model with version compatibility handling"""
     try:
-        # Force XGBoost to use CPU
         import xgboost as xgb
+        print(f"Loaded XGBoost version: {xgb.__version__}")  # Debug
+        
+        # Load model with safe mode
         model = joblib.load('model_artifacts/best_xgboost_model.joblib')
         
-        # If it's an XGBoost model, set CPU as device
+        # Version compatibility fixes
         if hasattr(model, 'set_param'):
-            model.set_param({'device': 'cpu'})
+            model.set_param({'device': 'cpu', 'gpu_id': -1})
+        elif hasattr(model, '_Booster'):
+            model._Booster.set_param({'device': 'cpu', 'gpu_id': -1})
         
+        # Load feature names
         feature_names = joblib.load('model_artifacts/feature_names.joblib')
         
         if len(feature_names) != 11:
@@ -74,16 +79,19 @@ def load_geostrap_model():
         return None, None
 
 def predict_geostrap(model, input_data):
-    """Make predictions using the geostrap model"""
+    """Robust prediction function with error handling"""
     try:
+        # Input validation
         if input_data is None:
             st.error("Input data is None")
             return None
             
-        # Ensure input is numpy array with correct shape
+        # Conversion and shape handling
         if isinstance(input_data, pd.DataFrame):
             input_data = input_data.values
             
+        input_data = np.array(input_data, dtype=np.float32)
+        
         if input_data.ndim == 1:
             input_data = input_data.reshape(1, -1)
             
@@ -91,14 +99,24 @@ def predict_geostrap(model, input_data):
             st.error(f"Expected 11 features, got {input_data.shape[1]}")
             return None
             
-        # Make prediction
-        prediction = model.predict(input_data)
-        
+        # Prediction with fallback
+        try:
+            prediction = model.predict(input_data)
+        except AttributeError:
+            # Fallback for older XGBoost versions
+            if hasattr(model, 'predict_proba'):
+                prediction = model.predict_proba(input_data)
+            elif hasattr(model, '_Booster'):
+                dmatrix = xgb.DMatrix(input_data)
+                prediction = model.predict(dmatrix)
+            else:
+                raise
+                
         if prediction is None or len(prediction) == 0:
             st.error("Model returned no prediction")
             return None
             
-        return prediction[0]
+        return float(prediction[0])
     except Exception as e:
         st.error(f"Prediction error: {str(e)}")
         return None
@@ -175,35 +193,39 @@ def calculate_geogrid_u(inputs):
         return None, None
 
 def calculate_geostrap_u(inputs):
+    """Robust calculation with full error handling"""
     try:
-        u_pred = predict_geostrap(geostrap_model, inputs)
-        
-        if u_pred is None:
-            st.error("Prediction failed - no μ* value returned")
+        # Validate inputs first
+        if inputs is None or len(inputs) == 0:
+            st.error("No input data provided")
             return None, None
             
-        phi = inputs[0][0]
-        cohesion = inputs[0][1]
-        normal_stress = inputs[0][2]
-        length_mm = inputs[0][3]
-        
-        # Convert to float to ensure numerical operations
-        try:
-            phi = float(phi)
-            cohesion = float(cohesion)
-            normal_stress = float(normal_stress)
-            length_mm = float(length_mm)
-        except (TypeError, ValueError) as e:
-            st.error(f"Invalid input values: {e}")
+        u_pred = predict_geostrap(geostrap_model, inputs)
+        if u_pred is None:
             return None, None
-
-        length_m = length_mm / 1000
-        phi_rad = radians(phi)
-        P = 2 * u_pred * length_m * (normal_stress * tan(phi_rad) + cohesion)
-
-        return float(u_pred), float(P)
+            
+        # Extract and validate parameters
+        try:
+            phi = float(inputs[0][0])
+            cohesion = float(inputs[0][1])
+            normal_stress = float(inputs[0][2])
+            length_mm = float(inputs[0][3])
+        except (IndexError, TypeError, ValueError) as e:
+            st.error(f"Invalid input values: {str(e)}")
+            return None, None
+            
+        # Perform calculations
+        try:
+            length_m = length_mm / 1000
+            phi_rad = radians(phi)
+            interaction_term = normal_stress * tan(phi_rad) + cohesion
+            P = 2 * u_pred * length_m * interaction_term
+            return u_pred, P
+        except Exception as calc_error:
+            st.error(f"Calculation error: {str(calc_error)}")
+            return None, None
     except Exception as e:
-        st.error(f"Geostrap calculation error: {e}")
+        st.error(f"Geostrap calculation failed: {str(e)}")
         return None, None
 
 # =================================================================
@@ -211,6 +233,21 @@ def calculate_geostrap_u(inputs):
 # =================================================================
 
 def main():
+    def check_versions():
+    """Verify required package versions"""
+    try:
+        import xgboost, sklearn, joblib, numpy
+        st.write(f"""
+        - XGBoost: {xgboost.__version__} (required: 1.7.2)
+        - scikit-learn: {sklearn.__version__} (required: 1.4.2)
+        - joblib: {joblib.__version__} (required: 1.2)
+        - numpy: {numpy.__version__} (required: 2.0.0)
+        """)
+    except ImportError as e:
+        st.error(f"Import error: {str(e)}")
+
+# In your main():
+check_versions()
     st.set_page_config(layout="wide", page_title="μ* Prediction Tool")
 
     # Load models
