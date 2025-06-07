@@ -54,7 +54,13 @@ def load_geogrid_model():
 def load_geostrap_model():
     """Load the saved XGBoost model and feature names"""
     try:
+        # Load with safe mode to avoid GPU issues
         model = joblib.load('model_artifacts/best_xgboost_model.joblib')
+        
+        # If model was trained with GPU but running on CPU
+        if hasattr(model, 'gpu_id'):
+            model.set_params(gpu_id=-1)  # Force CPU mode
+            
         feature_names = joblib.load('model_artifacts/feature_names.joblib')
         print("Geostrap model loaded successfully!")
         return model, feature_names
@@ -78,10 +84,16 @@ def predict_geostrap(model, input_data):
     if input_data.ndim == 1:
         input_data = input_data.reshape(1, -1)
     
-    # Make prediction (no scaling needed)
-    predictions = model.predict(input_data)
+    # Convert to pandas DataFrame with correct feature names
+    input_df = pd.DataFrame(input_data, columns=geostrap_feature_names)
     
-    return predictions[0]
+    # Make prediction (no scaling needed)
+    try:
+        predictions = model.predict(input_df)
+        return predictions[0]
+    except Exception as e:
+        st.error(f"Prediction error: {str(e)}")
+        return None
 
 # =================================================================
 # Common Functions
