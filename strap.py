@@ -278,7 +278,7 @@ def main():
     col2.markdown(
         '''
         <p style="font-size: 24px; font-weight: bold; text-align: center;">
-            Pullout Interaction Coefficient Predictor using Physics-Informed Neural Network (PINN)<br>
+            Pullout Interaction Coefficient Predictor using Machine Learning<br>
             Developed in collaboration with CSIR-CRRI and VNIT
         </p>
         ''',
