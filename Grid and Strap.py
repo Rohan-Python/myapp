@@ -48,7 +48,7 @@ def load_geogrid_model():
         raise
 
 # =================================================================
-# Geostrap Model (Updated)
+# Geo Model (Updated)
 # =================================================================
 
 def load_geostrap_model():
@@ -465,31 +465,35 @@ def main():
                         d50, unit_weight, water_content,
                         strap_width, num_straps, strap_tensile_strength
                     ]
-
+                
                     if None in required_fields:
                         st.error("Please fill in all required fields")
                     else:
-                        inputs = np.array([
-                            phi,
-                            cohesion,
-                            normal_stress,
-                            length,
-                            geostrap_classification_map[soil_classification],
-                            d50,
-                            unit_weight,
-                            water_content,
-                            0,  # Placeholder
-                            0,  # Placeholder
-                            0,  # Placeholder
-                            0,  # Placeholder
-                            0,  # Placeholder
-                            strap_width,
-                            num_straps,
-                            strap_tensile_strength
-                        ], dtype=np.float32).reshape(1, -1)
-
-                        u_pred, P = calculate_geostrap_u(inputs)
-
+                        # Create DataFrame with exact feature names and order
+                        input_dict = {
+                            'phi': [phi],
+                            'cohesion': [cohesion],
+                            'normal_stress': [normal_stress],
+                            'length': [length],
+                            'soil_classification': [geostrap_classification_map[soil_classification]],
+                            'd50': [d50],
+                            'unit_weight': [unit_weight],
+                            'water_content': [water_content],
+                            # Add any other features your model expects
+                            'strap_width': [strap_width],
+                            'num_straps': [num_straps],
+                            'tensile_strength': [strap_tensile_strength]
+                        }
+                        
+                        # Ensure all features are included (add missing ones with 0 if needed)
+                        for feat in geostrap_feature_names:
+                            if feat not in input_dict:
+                                input_dict[feat] = [0]  # Default value for missing features
+                                
+                        input_df = pd.DataFrame(input_dict)[geostrap_feature_names]  # Ensure correct order
+                        
+                        u_pred, P = calculate_geostrap_u(input_df.values)
+                
                         if u_pred is not None:
                             st.session_state.result = f"μ* = {u_pred:.4f}   |   P = {P:.2f} kN/m "
 
