@@ -168,7 +168,7 @@ def calculate_geostrap_u(inputs):
 
         length_m = length_mm / 1000
         phi_rad = radians(phi)
-        P = 2 * u_pred * length_m * (normal_stress * tan(phi_rad) + cohesion
+        P = 2 * u_pred * length_m * (normal_stress * tan(phi_rad) + cohesion)
 
         return u_pred, P
     except Exception as e:
