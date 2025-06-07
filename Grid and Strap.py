@@ -54,10 +54,16 @@ def load_geogrid_model():
 def load_geostrap_model():
     """Load the saved XGBoost model and feature names"""
     try:
+        # Force XGBoost to use CPU
+        import xgboost as xgb
         model = joblib.load('model_artifacts/best_xgboost_model.joblib')
+        
+        # If it's an XGBoost model, set CPU as device
+        if hasattr(model, 'set_param'):
+            model.set_param({'device': 'cpu'})
+        
         feature_names = joblib.load('model_artifacts/feature_names.joblib')
         
-        # Verify we have exactly 11 features
         if len(feature_names) != 11:
             st.error(f"Model expects 11 features, got {len(feature_names)}")
             return None, None
@@ -68,25 +74,31 @@ def load_geostrap_model():
         return None, None
 
 def predict_geostrap(model, input_data):
-    """
-    Make predictions using the geostrap model
-    Args:
-        input_data: Pandas DataFrame or numpy array with the same features as training data
-    Returns:
-        predictions: Numpy array with model predictions
-    """
-    # Convert to numpy array if DataFrame
-    if isinstance(input_data, pd.DataFrame):
-        input_data = input_data.values
-    
-    # Ensure correct shape
-    if input_data.ndim == 1:
-        input_data = input_data.reshape(1, -1)
-    
-    # Make prediction (no scaling needed)
+    """Make predictions using the geostrap model"""
     try:
-        predictions = model.predict(input_data)
-        return predictions[0]
+        if input_data is None:
+            st.error("Input data is None")
+            return None
+            
+        # Ensure input is numpy array with correct shape
+        if isinstance(input_data, pd.DataFrame):
+            input_data = input_data.values
+            
+        if input_data.ndim == 1:
+            input_data = input_data.reshape(1, -1)
+            
+        if input_data.shape[1] != 11:
+            st.error(f"Expected 11 features, got {input_data.shape[1]}")
+            return None
+            
+        # Make prediction
+        prediction = model.predict(input_data)
+        
+        if prediction is None or len(prediction) == 0:
+            st.error("Model returned no prediction")
+            return None
+            
+        return prediction[0]
     except Exception as e:
         st.error(f"Prediction error: {str(e)}")
         return None
@@ -166,19 +178,30 @@ def calculate_geostrap_u(inputs):
     try:
         u_pred = predict_geostrap(geostrap_model, inputs)
         
+        if u_pred is None:
+            st.error("Prediction failed - no μ* value returned")
+            return None, None
+            
         phi = inputs[0][0]
         cohesion = inputs[0][1]
         normal_stress = inputs[0][2]
         length_mm = inputs[0][3]
-        strap_width = inputs[0][7]  # Adjusted index for 11 features
-        num_straps = inputs[0][8]    # Adjusted index for 11 features
-        tensile_strength = inputs[0][9]  # Adjusted index for 11 features
+        
+        # Convert to float to ensure numerical operations
+        try:
+            phi = float(phi)
+            cohesion = float(cohesion)
+            normal_stress = float(normal_stress)
+            length_mm = float(length_mm)
+        except (TypeError, ValueError) as e:
+            st.error(f"Invalid input values: {e}")
+            return None, None
 
         length_m = length_mm / 1000
         phi_rad = radians(phi)
         P = 2 * u_pred * length_m * (normal_stress * tan(phi_rad) + cohesion)
 
-        return u_pred, P
+        return float(u_pred), float(P)
     except Exception as e:
         st.error(f"Geostrap calculation error: {e}")
         return None, None
