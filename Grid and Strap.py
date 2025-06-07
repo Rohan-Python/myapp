@@ -14,7 +14,7 @@ from io import BytesIO
 import joblib
 
 # =================================================================
-# Geogrid Model (Existing)
+# Geogrid Model (Existing - unchanged)
 # =================================================================
 
 @keras.saving.register_keras_serializable(package='GeogridModels', name='GeogridPINN')
@@ -48,11 +48,7 @@ def load_geogrid_model():
         raise
 
 # =================================================================
-# Geo Model (Updated)
-# =================================================================
-
-# =================================================================
-# Geostrap Model Loader (Updated for xgboost 1.7.2)
+# Geostrap Model Loader (Updated for new XGBoost)
 # =================================================================
 
 def load_geostrap_model():
@@ -70,6 +66,7 @@ def load_geostrap_model():
     except Exception as e:
         st.error(f"Model loading failed: {str(e)}")
         return None, None
+
 def predict_geostrap(model, input_data):
     """
     Make predictions using the geostrap model
@@ -86,19 +83,16 @@ def predict_geostrap(model, input_data):
     if input_data.ndim == 1:
         input_data = input_data.reshape(1, -1)
     
-    # Convert to pandas DataFrame with correct feature names
-    input_df = pd.DataFrame(input_data, columns=geostrap_feature_names)
-    
     # Make prediction (no scaling needed)
     try:
-        predictions = model.predict(input_df)
+        predictions = model.predict(input_data)
         return predictions[0]
     except Exception as e:
         st.error(f"Prediction error: {str(e)}")
         return None
 
 # =================================================================
-# Common Functions
+# Mappings and Helper Functions
 # =================================================================
 
 # Mappings
@@ -176,9 +170,9 @@ def calculate_geostrap_u(inputs):
         cohesion = inputs[0][1]
         normal_stress = inputs[0][2]
         length_mm = inputs[0][3]
-        strap_width = inputs[0][13]
-        num_straps = inputs[0][14]
-        tensile_strength = inputs[0][15]
+        strap_width = inputs[0][7]  # Adjusted index for 11 features
+        num_straps = inputs[0][8]    # Adjusted index for 11 features
+        tensile_strength = inputs[0][9]  # Adjusted index for 11 features
 
         length_m = length_mm / 1000
         phi_rad = radians(phi)
@@ -210,8 +204,6 @@ def main():
     geostrap_feature_names = st.session_state.geostrap_feature_names
 
     # Initialize session state
-    if 'scale_factor' not in st.session_state:
-        st.session_state.scale_factor = 5
     if 'data' not in st.session_state:
         st.session_state.data = None
     if 'current_tab' not in st.session_state:
@@ -229,17 +221,6 @@ def main():
         background-color: #2196F3;
         color: white;
     }
-    .st-emotion-cache-1v0mbdj {
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    .header-text {
-        text-align: center;
-        font-weight: bold;
-        font-style: italic;
-        margin-bottom: 20px;
-    }
     .result-box {
         background-color: #f8f9fa;
         padding: 15px;
@@ -247,14 +228,6 @@ def main():
         margin-top: 20px;
         border: 1px solid #dee2e6;
         color: #212529;
-    }
-    .number-input input {
-        background-color: #ffffff !important;
-    }
-    .tab-button {
-        font-size: 18px !important;
-        padding: 10px 20px !important;
-        margin: 5px !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -300,7 +273,7 @@ def main():
                     use_container_width=True, type="primary" if st.session_state.current_tab == "Geostrap" else "secondary"):
             st.session_state.current_tab = "Geostrap"
 
-    # Geogrid Tab (unchanged from your original code)
+    # Geogrid Tab (unchanged from original code)
     if st.session_state.current_tab == "Geogrid":
         tab1, tab2 = st.tabs(["Soil Parameters", "Geogrid Parameters"])
 
@@ -411,7 +384,7 @@ def main():
                         if u_pred is not None:
                             st.session_state.result = f"μ* = {u_pred:.4f}   |   P = {P:.2f} kN/m "
 
-    # Geostrap Tab (updated for raw inputs)
+    # Geostrap Tab (updated for 11 inputs)
     elif st.session_state.current_tab == "Geostrap":
         tab1, tab2 = st.tabs(["Soil Parameters", "Geostrap Parameters"])
 
@@ -421,17 +394,20 @@ def main():
             with col1:
                 st.header("Soil Parameters")
                 normal_stress = st.number_input("Normal Stress (kPa):", value=None, placeholder="Enter value", step=0.1,
-                                                format="%.2f", key="strap_normal_stress")
-                phi = st.number_input("Φ' (degrees):", value=None, placeholder="Enter value", step=0.1, format="%.1f", key="strap_phi")
+                                              format="%.2f", key="strap_normal_stress")
+                phi = st.number_input("Φ' (degrees):", value=None, placeholder="Enter value", step=0.1, 
+                                    format="%.1f", key="strap_phi")
                 cohesion = st.number_input("Cohesion c' (kPa):", value=None, placeholder="Enter value", step=0.1,
-                                           format="%.2f", key="strap_cohesion")
-                unit_weight = st.number_input("Unit Weight (kN/m³):", value=None, placeholder="Enter value", step=0.1,
-                                              format="%.2f", key="strap_unit_weight")
-                water_content = st.number_input("Water Content (%):", value=None, placeholder="Enter value", step=0.1,
-                                                format="%.1f", key="strap_water_content")
-                d50 = st.number_input("D50 (mm):", value=None, placeholder="Enter value", step=0.1, format="%.2f", key="strap_d50")
+                                         format="%.2f", key="strap_cohesion")
+                length = st.number_input("Length (mm):", value=None, placeholder="Enter value", step=1.0,
+                                       format="%.1f", key="strap_length")
                 soil_classification = st.selectbox("Soil Classification:", 
-                                                 options=list(geostrap_classification_map.keys()), key="strap_soil_class")
+                                                 options=list(geostrap_classification_map.keys()), 
+                                                 key="strap_soil_class")
+                d50 = st.number_input("D50 (mm):", value=None, placeholder="Enter value", step=0.1, 
+                                     format="%.2f", key="strap_d50")
+                unit_weight = st.number_input("Unit Weight (kN/m³):", value=None, placeholder="Enter value", step=0.1,
+                                           format="%.2f", key="strap_unit_weight")
 
             with col2:
                 soil_img = get_image_base64("PulloutboxDiagram.jpg")
@@ -454,14 +430,14 @@ def main():
 
             with col1:
                 st.header("Geostrap Parameters")
-                length = st.number_input("Length (mm):", value=None, placeholder="Enter value", step=1.0, format="%.1f",
-                                         key="strap_length")
+                water_content = st.number_input("Water Content (%):", value=None, placeholder="Enter value", step=0.1,
+                                             format="%.1f", key="strap_water_content")
                 strap_width = st.number_input("Width of Straps (mm):", value=None, placeholder="Enter value", 
-                                             step=1.0, format="%.1f", key="strap_width")
+                                           step=1.0, format="%.1f", key="strap_width")
                 num_straps = st.number_input("Number of Straps:", value=None, placeholder="Enter value", 
-                                            step=1, key="num_straps")
-                strap_tensile_strength = st.number_input("Tensile Strength (kN):", value=None, placeholder="Enter value",
-                                                         step=0.1, format="%.1f", key="strap_tensile_strength")
+                                           step=1, key="num_straps")
+                tensile_strength = st.number_input("Tensile Strength (kN):", value=None, placeholder="Enter value",
+                                                 step=0.1, format="%.1f", key="strap_tensile_strength")
 
             with col2:
                 geostrap_img = get_image_base64("Geostrap.png")
@@ -471,42 +447,34 @@ def main():
                         unsafe_allow_html=True
                     )
                 st.markdown("<p style='text-align: center; font-weight: bold;'>Geostrap Structure Reference</p>",
-                            unsafe_allow_html=True)
+                          unsafe_allow_html=True)
 
                 if st.button("Run ▶", type="primary", key="strap_run"):
                     required_fields = [
                         normal_stress, phi, cohesion, length,
-                        d50, unit_weight, water_content,
-                        strap_width, num_straps, strap_tensile_strength
+                        soil_classification, d50, unit_weight,
+                        water_content, strap_width, num_straps, tensile_strength
                     ]
                 
                     if None in required_fields:
                         st.error("Please fill in all required fields")
                     else:
-                        # Create DataFrame with exact feature names and order
-                        input_dict = {
-                            'phi': [phi],
-                            'cohesion': [cohesion],
-                            'normal_stress': [normal_stress],
-                            'length': [length],
-                            'soil_classification': [geostrap_classification_map[soil_classification]],
-                            'd50': [d50],
-                            'unit_weight': [unit_weight],
-                            'water_content': [water_content],
-                            # Add any other features your model expects
-                            'strap_width': [strap_width],
-                            'num_straps': [num_straps],
-                            'tensile_strength': [strap_tensile_strength]
-                        }
+                        # Create input array with exactly 11 features in correct order
+                        inputs = np.array([
+                            phi,
+                            cohesion,
+                            normal_stress,
+                            length,
+                            geostrap_classification_map[soil_classification],
+                            d50,
+                            unit_weight,
+                            water_content,
+                            strap_width,
+                            num_straps,
+                            tensile_strength
+                        ], dtype=np.float32).reshape(1, -1)
                         
-                        # Ensure all features are included (add missing ones with 0 if needed)
-                        for feat in geostrap_feature_names:
-                            if feat not in input_dict:
-                                input_dict[feat] = [0]  # Default value for missing features
-                                
-                        input_df = pd.DataFrame(input_dict)[geostrap_feature_names]  # Ensure correct order
-                        
-                        u_pred, P = calculate_geostrap_u(input_df.values)
+                        u_pred, P = calculate_geostrap_u(inputs)
                 
                         if u_pred is not None:
                             st.session_state.result = f"μ* = {u_pred:.4f}   |   P = {P:.2f} kN/m "
