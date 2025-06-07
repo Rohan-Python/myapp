@@ -250,6 +250,8 @@ def main():
     geostrap_feature_names = st.session_state.geostrap_feature_names
 
     # Initialize session state
+    if 'scale_factor' not in st.session_state:
+		st.sessions_state.scale_factor = 5
     if 'data' not in st.session_state:
         st.session_state.data = None
     if 'current_tab' not in st.session_state:
