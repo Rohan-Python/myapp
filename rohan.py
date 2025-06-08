@@ -341,18 +341,10 @@ def main():
                 d50 = st.number_input("D50 (mm):", value=None, placeholder="Enter value", step=0.1, format="%.2f", key="geo_d50")    
                 unit_weight = st.number_input("Unit Weight (kN/m³):", value=None, placeholder="Enter value", step=0.1,
                                               format="%.2f", key="geo_unit_weight")        
-                st.markdown("---")  # Optional divider
-                st.write("Navigate to:")
-                # Create the same tabs again at the bottom
-                bottom_tab1, bottom_tab2 = st.tabs([" ", " "])  # Empty labels since we'll use buttons
-            
-                with bottom_tab1:
-                    if st.button("Soil Parameters", disabled=True):
-                        pass
-            
-                with bottom_tab2:
-                    if st.button("Go to Geogrid Parameters"):
-                        pass  # The tab switch happens automatically
+                st.markdown("---")
+                if st.button("Go to Geogrid Parameters →", type="primary"):
+                    # This will automatically switch to the second tab
+                    pass  # No action needed - Streamlit handles tab switching
 
             with col2:
                 soil_img = get_image_base64("PulloutboxDiagram.jpg")
