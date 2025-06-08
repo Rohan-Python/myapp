@@ -251,7 +251,7 @@ def main():
 
     # Initialize session state
     if 'scale_factor' not in st.session_state:
-	st.session_state.scale_factor = 5
+        st.session_state.scale_factor = 5
     if 'data' not in st.session_state:
         st.session_state.data = None
     if 'current_tab' not in st.session_state:
