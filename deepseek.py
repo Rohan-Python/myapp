@@ -177,11 +177,15 @@ def draw_geogrid(length, md, cmd, scale_factor=5):
 
 def calculate_geogrid_u(inputs):
     try:
+        if geogrid_model is None:
+            st.error("Geogrid model not loaded")
+            return None, None
+            
         u_pred = geogrid_model.predict(inputs)[0][0]
-        phi = inputs[0][0]
-        cohesion = inputs[0][1]
-        normal_stress = inputs[0][2]
-        length_mm = inputs[0][3]
+        phi = float(inputs[0][0])
+        cohesion = float(inputs[0][1])
+        normal_stress = float(inputs[0][2])
+        length_mm = float(inputs[0][3])
 
         length_m = length_mm / 1000
         phi_rad = radians(phi)
@@ -194,14 +198,18 @@ def calculate_geogrid_u(inputs):
 
 def calculate_geostrap_u(inputs):
     try:
+        if geostrap_model is None:
+            st.error("Geostrap model not loaded")
+            return None, None
+            
         u_pred = predict_geostrap(geostrap_model, inputs)
         if u_pred is None:
             return None, None
             
-        phi = inputs[0][0]
-        cohesion = inputs[0][1]
-        normal_stress = inputs[0][2]
-        length_mm = inputs[0][3]
+        phi = float(inputs[0][0])
+        cohesion = float(inputs[0][1])
+        normal_stress = float(inputs[0][2])
+        length_mm = float(inputs[0][3])
 
         length_m = length_mm / 1000
         phi_rad = radians(phi)
@@ -231,7 +239,7 @@ def initialize_session_state():
 def main():
     initialize_session_state()
     
-    global geogrid_model, geostrap_model, geostrap_feature_names
+    global geogrid_model, geostrap_model
     geogrid_model = st.session_state.geogrid_model
     geostrap_model = st.session_state.geostrap_model
     geostrap_feature_names = st.session_state.geostrap_feature_names
@@ -416,19 +424,19 @@ def main():
                     st.error("Please fill in all required fields")
                 else:
                     inputs = np.array([
-                        phi,
-                        cohesion,
-                        normal_stress,
-                        length,
+                        float(phi),
+                        float(cohesion),
+                        float(normal_stress),
+                        float(length),
                         geogrid_classification_map[soil_classification],
-                        d50,
-                        unit_weight,
-                        water_content,
+                        float(d50),
+                        float(unit_weight),
+                        float(water_content),
                         geogrid_type_map[geogrid_type],
-                        bearing_members if bearing_members else floor(float(length) / float(md_aperture)),
-                        md_aperture,
-                        cmd_aperture,
-                        tensile_strength
+                        float(bearing_members) if bearing_members else floor(float(length) / float(md_aperture)),
+                        float(md_aperture),
+                        float(cmd_aperture),
+                        float(tensile_strength)
                     ], dtype=np.float32).reshape(1, -1)
     
                     u_pred, P = calculate_geogrid_u(inputs)
@@ -530,17 +538,17 @@ def main():
                     st.error("Please fill in all required fields")
                 else:
                     inputs = np.array([
-                        phi,
-                        cohesion,
-                        normal_stress,
-                        length,
+                        float(phi),
+                        float(cohesion),
+                        float(normal_stress),
+                        float(length),
                         geostrap_classification_map[soil_classification],
-                        d50,
-                        unit_weight,
-                        water_content,
-                        strap_width,
-                        num_straps,
-                        tensile_strength
+                        float(d50),
+                        float(unit_weight),
+                        float(water_content),
+                        float(strap_width),
+                        float(num_straps),
+                        float(tensile_strength)
                     ], dtype=np.float32).reshape(1, -1)
                     
                     u_pred, P = calculate_geostrap_u(inputs)
