@@ -343,7 +343,7 @@ def main():
                                               format="%.2f", key="geo_unit_weight")        
                 # Add this at the bottom of col1 - EXACT SAME TABS
                 st.markdown("---")  # Optional divider
-                tab1_bottom, tab2_bottom = st.tabs(["Soil Parameters", "Geogrid Parameters"])
+                tab1, tab2 = st.tabs(["Soil Parameters", "Geogrid Parameters"])
 
             with col2:
                 soil_img = get_image_base64("PulloutboxDiagram.jpg")
