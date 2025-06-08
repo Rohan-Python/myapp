@@ -393,7 +393,7 @@ def main():
                                                    step=0.1, format="%.1f", key="geo_tensile_strength")
                 geogrid_type = st.selectbox("Geogrid Type:", options=list(geogrid_type_map.keys()), key="geo_geogrid_type")
 		    
-		if st.button("Back to Soil Parameters", key="back_to_soil"):
+                if st.button("Back to Soil Parameters", key="back_to_soil"):
 	                # Use JavaScript to click the Soil Parameters tab
 	                js = """
 	                <script>
