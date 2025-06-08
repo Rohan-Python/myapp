@@ -503,8 +503,8 @@ def main():
                                                  step=0.1, format="%.1f", key="strap_tensile_strength")
 
             if st.button("← Previous", key="strap_prev_strap_to_soil"):
-            st.session_state.active_subtab = "Soil Parameters"
-            st.rerun()
+                st.session_state.active_subtab = "Soil Parameters"
+                st.rerun()
 
             with col2:
                 geostrap_img = get_image_base64("Geostrap.png")
