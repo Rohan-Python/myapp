@@ -347,18 +347,19 @@ if st.session_state.current_tab == "Geogrid":
     with col2:
         soil_img = get_image_base64("PulloutboxDiagram.jpg")
         if soil_img:
-           st.markdown(
-                        f'''
-                        <div style="display: flex; justify-content: center;">
-                            <img src="data:image/jpg;base64,{soil_img}" style="max-width: 100%; width: 1200px; height: auto;">
-                        </div>
-                        ''',
-                        unsafe_allow_html=True
-                    )
-                st.markdown(
-                    "<p style='text-align: center; font-weight: bold; font-size: 20px;'>Soil-Geogrid Interaction</p>",
-                    unsafe_allow_html=True
-                )
+    st.markdown(
+        f'''
+        <div style="display: flex; justify-content: center;">
+            <img src="data:image/jpg;base64,{soil_img}" style="max-width: 100%; width: 1200px; height: auto;">
+        </div>
+        ''',
+        unsafe_allow_html=True
+    )
+    st.markdown(
+        "<p style='text-align: center; font-weight: bold; font-size: 20px;'>Soil-Geogrid Interaction</p>",
+        unsafe_allow_html=True
+    )
+
 
         with tab2:
             col1, col2 = st.columns([1, 1])
