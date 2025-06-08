@@ -465,6 +465,11 @@ def main():
 
                         if u_pred is not None:
                             st.session_state.result = f"μ* = {u_pred:.4f}   |   P = {P:.2f} kN/m "
+                        # This ensures the tabs switch when clicking the top tabs
+                        if tab1:
+                            st.session_state.geogrid_active_tab = "Soil Parameters"
+                        if tab2:
+                            st.session_state.geogrid_active_tab = "Geogrid Parameters"
 
     # Geostrap Tab (updated for 11 inputs)
     elif st.session_state.current_tab == "Geostrap":
