@@ -385,7 +385,16 @@ def main():
                 tensile_strength = st.number_input("Tensile Strength (kN/m):", value=None, placeholder="Enter value",
                                                    step=0.1, format="%.1f", key="geo_tensile_strength")
                 geogrid_type = st.selectbox("Geogrid Type:", options=list(geogrid_type_map.keys()), key="geo_geogrid_type")
-
+# Add navigation buttons at the bottom
+            st.markdown('<div class="tab-buttons"></div>', unsafe_allow_html=True)
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("Soil Parameters", key="geo_bottom_nav_to_soil"):
+                    st.session_state.active_subtab = "Soil Parameters"
+                    st.rerun()
+            with col2:
+                if st.button("Geogrid Parameters", disabled=True, help="You are currently on this tab"):
+                    pass
             with col2:
                 geogrid_img = get_image_base64("Geogrid.png")
                 if geogrid_img:
@@ -465,7 +474,16 @@ def main():
                                      format="%.2f", key="strap_d50")
                 unit_weight = st.number_input("Unit Weight (kN/m³):", value=None, placeholder="Enter value", step=0.1,
                                            format="%.2f", key="strap_unit_weight")
-
+ # Add navigation buttons at the bottom
+            st.markdown('<div class="tab-buttons"></div>', unsafe_allow_html=True)
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("Soil Parameters", disabled=True, help="You are currently on this tab"):
+                    pass
+            with col2:
+                if st.button("Geostrap Parameters", key="strap_bottom_nav_to_strap"):
+                    st.session_state.active_subtab = "Geostrap Parameters"
+                    st.rerun()
             with col2:
                 soil_img = get_image_base64("PulloutboxDiagram.jpg")
                 if soil_img:
@@ -495,7 +513,16 @@ def main():
                                            step=1, key="num_straps")
                 tensile_strength = st.number_input("Tensile Strength (kN):", value=None, placeholder="Enter value",
                                                  step=0.1, format="%.1f", key="strap_tensile_strength")
-
+# Add navigation buttons at the bottom
+            st.markdown('<div class="tab-buttons"></div>', unsafe_allow_html=True)
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("Soil Parameters", key="strap_bottom_nav_to_soil"):
+                    st.session_state.active_subtab = "Soil Parameters"
+                    st.rerun()
+            with col2:
+                if st.button("Geostrap Parameters", disabled=True, help="You are currently on this tab"):
+                    pass
             with col2:
                 geostrap_img = get_image_base64("Geostrap.png")
                 if geostrap_img:
