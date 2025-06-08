@@ -190,7 +190,7 @@ def calculate_geogrid_u(inputs):
 
         length_m = length_mm / 1000
         phi_rad = radians(phi)
-        P = 2 * u_pred * length_m * (normal_stress * tan(phi_rad) + cohesion)
+        P = 2 * u_pred * length_m * (normal_stress * tan(phi_rad) + cohesion
 
         return u_pred, P
     except Exception as e:
@@ -625,48 +625,40 @@ def main():
                     pass
     
             if st.button("Run ▶", type="primary", key="geo_run"):
-                # Get all values directly from session state
-                values = {
-                    'normal_stress': st.session_state.get('geo_normal_stress'),
-                    'phi': st.session_state.get('geo_phi'),
-                    'cohesion': st.session_state.get('geo_cohesion'),
-                    'length': st.session_state.get('geo_length'),
-                    'd50': st.session_state.get('geo_d50'),
-                    'unit_weight': st.session_state.get('geo_unit_weight'),
-                    'water_content': st.session_state.get('geo_water_content'),
-                    'md_aperture': st.session_state.get('geo_md_aperture'),
-                    'cmd_aperture': st.session_state.get('geo_cmd_aperture'),
-                    'tensile_strength': st.session_state.get('geo_tensile_strength'),
-                    'soil_class': st.session_state.get('geo_soil_class'),
-                    'geogrid_type': st.session_state.get('geo_geogrid_type')
-                }
-                
-                # Check for None values
-                if any(v is None for v in values.values()):
+                required_fields = [
+                    st.session_state.get('geo_normal_stress'),
+                    st.session_state.get('geo_phi'),
+                    st.session_state.get('geo_cohesion'),
+                    st.session_state.get('geo_length'),
+                    st.session_state.get('geo_d50'),
+                    st.session_state.get('geo_unit_weight'),
+                    st.session_state.get('geo_water_content'),
+                    st.session_state.get('geo_md_aperture'),
+                    st.session_state.get('geo_cmd_aperture'),
+                    st.session_state.get('geo_tensile_strength')
+                ]
+    
+                if None in required_fields:
                     st.error("Please fill in all required fields")
                 else:
-                    # Calculate bearing members if not provided
-                    bearing_members = (st.session_state.geo_bearing_members if st.session_state.geo_bearing_members 
-                                      else floor(float(st.session_state.geo_length) / float(st.session_state.geo_md_aperture)))
-                    
                     inputs = np.array([
-                        values['phi'],
-                        values['cohesion'],
-                        values['normal_stress'],
-                        values['length'],
-                        geogrid_classification_map[values['soil_class']],
-                        values['d50'],
-                        values['unit_weight'],
-                        values['water_content'],
-                        geogrid_type_map[values['geogrid_type']],
-                        bearing_members,
-                        values['md_aperture'],
-                        values['cmd_aperture'],
-                        values['tensile_strength']
+                        st.session_state.geo_phi,
+                        st.session_state.geo_cohesion,
+                        st.session_state.geo_normal_stress,
+                        st.session_state.geo_length,
+                        geogrid_classification_map[st.session_state.geo_soil_class],
+                        st.session_state.geo_d50,
+                        st.session_state.geo_unit_weight,
+                        st.session_state.geo_water_content,
+                        geogrid_type_map[st.session_state.geo_geogrid_type],
+                        st.session_state.geo_bearing_members if st.session_state.geo_bearing_members else floor(float(st.session_state.geo_length) / float(st.session_state.geo_md_aperture)),
+                        st.session_state.geo_md_aperture,
+                        st.session_state.geo_cmd_aperture,
+                        st.session_state.geo_tensile_strength
                     ], dtype=np.float32).reshape(1, -1)
-            
+    
                     u_pred, P = calculate_geogrid_u(inputs)
-            
+    
                     if u_pred is not None:
                         st.session_state.result = f"μ* = {u_pred:.4f}   |   P = {P:.2f} kN/m"
 
@@ -754,73 +746,136 @@ def main():
                     pass
     
             if st.button("Run ▶", type="primary", key="strap_run"):
-                # Get all values directly from session state
-                values = {
-                    'normal_stress': st.session_state.get('strap_normal_stress'),
-                    'phi': st.session_state.get('strap_phi'),
-                    'cohesion': st.session_state.get('strap_cohesion'),
-                    'length': st.session_state.get('strap_length'),
-                    'soil_class': st.session_state.get('strap_soil_class'),
-                    'd50': st.session_state.get('strap_d50'),
-                    'unit_weight': st.session_state.get('strap_unit_weight'),
-                    'water_content': st.session_state.get('strap_water_content'),
-                    'strap_width': st.session_state.get('strap_width'),
-                    'num_straps': st.session_state.get('num_straps'),
-                    'tensile_strength': st.session_state.get('strap_tensile_strength')
-                }
-                
-                # Check for None values
-                if any(v is None for v in values.values()):
+                required_fields = [
+                    st.session_state.get('strap_normal_stress'),
+                    st.session_state.get('strap_phi'),
+                    st.session_state.get('strap_cohesion'),
+                    st.session_state.get('strap_length'),
+                    st.session_state.get('strap_soil_class'),
+                    st.session_state.get('strap_d50'),
+                    st.session_state.get('strap_unit_weight'),
+                    st.session_state.get('strap_water_content'),
+                    st.session_state.get('strap_width'),
+                    st.session_state.get('num_straps'),
+                    st.session_state.get('strap_tensile_strength')
+                ]
+            
+                if None in required_fields:
                     st.error("Please fill in all required fields")
                 else:
                     inputs = np.array([
-                        values['phi'],
-                        values['cohesion'],
-                        values['normal_stress'],
-                        values['length'],
-                        geostrap_classification_map[values['soil_class']],
-                        values['d50'],
-                        values['unit_weight'],
-                        values['water_content'],
-                        values['strap_width'],
-                        values['num_straps'],
-                        values['tensile_strength']
+                        st.session_state.strap_phi,
+                        st.session_state.strap_cohesion,
+                        st.session_state.strap_normal_stress,
+                        st.session_state.strap_length,
+                        geostrap_classification_map[st.session_state.strap_soil_class],
+                        st.session_state.strap_d50,
+                        st.session_state.strap_unit_weight,
+                        st.session_state.strap_water_content,
+                        st.session_state.strap_width,
+                        st.session_state.num_straps,
+                        st.session_state.strap_tensile_strength
                     ], dtype=np.float32).reshape(1, -1)
                     
                     u_pred, P = calculate_geostrap_u(inputs)
-                
+            
                     if u_pred is not None:
                         st.session_state.result = f"μ* = {u_pred:.4f}   |   P = {P:.2f} kN/m"
 
     # Common controls
     st.markdown("---")
     col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
-
+    
     with col1:
-        if st.button("Clear All", key="clear_all"):
+        if st.button("🔄 Clear All", 
+                    key="clear_all",
+                    help="Reset all inputs and results",
+                    use_container_width=True):
             clear_all()
-
+    
     with col2:
-        uploaded_file = st.file_uploader("📂 Upload Excel for Prediction", type=["xlsx", "xls"], key="file_uploader")
+        uploaded_file = st.file_uploader(
+            "📂 Upload Excel for Prediction", 
+            type=["xlsx", "xls"], 
+            key="file_uploader",
+            help="Upload Excel file with input data"
+        )
+        
         if uploaded_file:
             st.session_state.uploaded_file = uploaded_file
-
-        if st.button("Import Excel", key="import_excel"):
-            if 'uploaded_file' in st.session_state:
+    
+        if st.button("📤 Import Excel", 
+                    key="import_excel",
+                    help="Process uploaded Excel file",
+                    use_container_width=True):
+            if 'uploaded_file' in st.session_state and st.session_state.uploaded_file is not None:
                 import_excel(st.session_state.uploaded_file)
             else:
                 st.warning("Please upload an Excel file first.")
-
-        download_template()
-
+    
+        # Template download stays here to keep all file operations together
+        if st.session_state.current_tab == "Geogrid":
+            template_data = {
+                'phi': [30.0],
+                'cohesion': [10.0],
+                'normal_stress': [50.0],
+                'length': [400.0],
+                'soil_classification': ['CL'],
+                'd50': [0.5],
+                'unit_weight': [18.5],
+                'water_content': [12.0],
+                'geogrid_type': ['HDPE BIAXIAL'],
+                'bearing_members': [8],
+                'md_aperture': [50.0],
+                'cmd_aperture': [40.0],
+                'tensile_strength': [20.0]
+            }
+        else:
+            template_data = {
+                'phi': [30.0],
+                'cohesion': [10.0],
+                'normal_stress': [50.0],
+                'length': [400.0],
+                'soil_classification': ['SM'],
+                'd50': [0.5],
+                'unit_weight': [18.5],
+                'water_content': [12.0],
+                'strap_width': [50.0],
+                'num_straps': [5],
+                'tensile_strength': [15.0]
+            }
+        
+        template_df = pd.DataFrame(template_data)
+        
+        excel_buffer = BytesIO()
+        with pd.ExcelWriter(excel_buffer, engine='xlsxwriter') as writer:
+            template_df.to_excel(writer, index=False, sheet_name='Template')
+        
+        st.download_button(
+            label="📥 Download Template",
+            data=excel_buffer.getvalue(),
+            file_name=f"{st.session_state.current_tab.lower()}_template.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            help="Download Excel template with sample data",
+            use_container_width=True
+        )
+    
     with col3:
-        if st.button("Export to Excel", key="export_excel"):
+        if st.button("📥 Export to Excel", 
+                    key="export_excel",
+                    help="Export results to Excel",
+                    disabled=('data' not in st.session_state or st.session_state.data is None),
+                    use_container_width=True):
             export_excel()
-
+    
     with col4:
-        if st.button("Data Format Info", key="data_info"):
+        if st.button("ℹ️ Data Format Info", 
+                    key="data_info",
+                    help="Show required data formats",
+                    use_container_width=True):
             show_disclaimer()
-
+    
+    # Results display
     if 'result' in st.session_state and st.session_state.result:
         st.markdown(f"""
         <div class="result-box">
@@ -828,198 +883,13 @@ def main():
             <p style='color: #212529; font-size: 18px;'>{st.session_state.result}</p>
         </div>
         """, unsafe_allow_html=True)
-
-# Helper functions
-def update_bearing_members():
-    try:
-        length = st.session_state.geo_length
-        md = st.session_state.geo_md_aperture
-        if md and length:
-            bearing_members = floor(float(length) / float(md))
-            st.session_state.geo_bearing_members = bearing_members
-    except:
-        pass
-
-def clear_all():
-    st.session_state.clear()
-    st.session_state.scale_factor = 5
-    st.session_state.data = None
-    st.session_state.current_tab = "Geogrid"
-    st.rerun()
-
-def show_disclaimer():
-    disclaimer = """DATA FORMAT REQUIREMENTS:
-
-For Geogrid Soil Classification, use these exact values:
-CH: 1, CL: 2, MH: 3, ML: 4, SW-SM: 5, SM: 6
-SP-SM: 7, SP: 8, SW: 9, GP: 10, GW: 11, GW-GM: 12
-
-For Geostrap Soil Classification, use these exact values:
-ML: 1, SM: 2, SP: 3, SP-SM: 4, SW: 5, GW: 6, GW-GM: 7
-
-For Geogrid Type, use these exact values:
-NATURAL: 1, HDPE BIAXIAL: 2, PP BIAXIAL: 3
-PP UNIAXIAL: 4, HDPE UNIAXIAL: 5
-PET BIAXIAL: 6, PET UNIAXIAL: 7"""
-    st.warning(disclaimer)
-
-def import_excel(uploaded_file):
-    if uploaded_file is None:
-        st.warning("📂 Please upload an Excel file to begin predictions.")
-        return
-
-    try:
-        df = pd.read_excel(uploaded_file)
-
-        if st.session_state.current_tab == "Geogrid":
-            required_cols = ['phi', 'cohesion', 'normal_stress', 'length', 'soil_classification',
-                             'd50', 'unit_weight', 'water_content', 'geogrid_type', 'bearing_members',
-                             'md_aperture', 'cmd_aperture', 'tensile_strength']
-
-            if not all(col in df.columns for col in required_cols):
-                st.error("Missing required columns in the Excel file.")
-                return
-
-            df['soil_classification'] = df['soil_classification'].map(geogrid_classification_map)
-            df['geogrid_type'] = df['geogrid_type'].map(geogrid_type_map)
-
-            results = []
-            progress_bar = st.progress(0)
-            status_text = st.empty()
-
-            for idx in range(len(df)):
-                row = df.iloc[idx]
-                inputs = np.array([
-                    row['phi'], row['cohesion'], row['normal_stress'], row['length'],
-                    row['soil_classification'], row['d50'], row['unit_weight'],
-                    row['water_content'], row['geogrid_type'], row['bearing_members'],
-                    row['md_aperture'], row['cmd_aperture'], row['tensile_strength']
-                ], dtype=np.float32).reshape(1, -1)
-
-                u_pred, P = calculate_geogrid_u(inputs)
-                results.append([u_pred, P])
-
-                progress = (idx + 1) / len(df)
-                progress_bar.progress(progress)
-                status_text.text(f"Processing row {idx + 1} of {len(df)}")
-
-            df[['predicted_mu', 'P']] = results
-
-            inv_classification_map = {v: k for k, v in geogrid_classification_map.items()}
-            inv_geogrid_type_map = {v: k for k, v in geogrid_type_map.items()}
-            df['soil_classification'] = df['soil_classification'].map(inv_classification_map)
-            df['geogrid_type'] = df['geogrid_type'].map(inv_geogrid_type_map)
-
-        else:  # Geostrap
-            required_cols = ['phi', 'cohesion', 'normal_stress', 'length', 'soil_classification',
-                             'd50', 'unit_weight', 'water_content', 'strap_width', 
-                             'num_straps', 'tensile_strength']
-
-            if not all(col in df.columns for col in required_cols):
-                st.error("Missing required columns in the Excel file.")
-                return
-
-            df['soil_classification'] = df['soil_classification'].map(geostrap_classification_map)
-
-            results = []
-            progress_bar = st.progress(0)
-            status_text = st.empty()
-
-            for idx in range(len(df)):
-                row = df.iloc[idx]
-                inputs = np.array([
-                    row['phi'], row['cohesion'], row['normal_stress'], row['length'],
-                    row['soil_classification'], row['d50'], row['unit_weight'],
-                    row['water_content'], 0, 0, 0, 0, 0,
-                    row['strap_width'], row['num_straps'], row['tensile_strength']
-                ], dtype=np.float32).reshape(1, -1)
-
-                u_pred, P = calculate_geostrap_u(inputs)
-                results.append([u_pred, P])
-
-                progress = (idx + 1) / len(df)
-                progress_bar.progress(progress)
-                status_text.text(f"Processing row {idx + 1} of {len(df)}")
-
-            df[['predicted_mu', 'P']] = results
-
-            inv_classification_map = {v: k for k, v in geostrap_classification_map.items()}
-            df['soil_classification'] = df['soil_classification'].map(inv_classification_map)
-
-        st.session_state.data = df
-        st.success(f"✅ Predictions completed for {len(df)} rows.")
-        st.dataframe(df)
-
-    except Exception as e:
-        st.error(f"❌ Failed to import and predict:\n{e}")
-
-def export_excel():
-    if st.session_state.data is None:
-        st.error("No data to export. Please import and predict first.")
-        return
-
-    try:
-        output = BytesIO()
-        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-            st.session_state.data.to_excel(writer, index=False, sheet_name='Results')
-
-        st.download_button(
-            label="Download Excel File",
-            data=output.getvalue(),
-            file_name="geosynthetic_results.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
-    except Exception as e:
-        st.error(f"Export failed: {e}")
-
-def download_template():
-    if st.session_state.current_tab == "Geogrid":
-        template = pd.DataFrame([
-            {
-                'phi': 30.0,
-                'cohesion': 10.0,
-                'normal_stress': 50.0,
-                'length': 400.0,
-                'soil_classification': 'CL',
-                'd50': 0.5,
-                'unit_weight': 18.5,
-                'water_content': 12.0,
-                'geogrid_type': 'HDPE BIAXIAL',
-                'bearing_members': 8,
-                'md_aperture': 50.0,
-                'cmd_aperture': 40.0,
-                'tensile_strength': 20.0
-            }
-        ])
-        file_name = "geogrid_prediction_template.xlsx"
-    else:
-        template = pd.DataFrame([
-            {
-                'phi': 30.0,
-                'cohesion': 10.0,
-                'normal_stress': 50.0,
-                'length': 400.0,
-                'soil_classification': 'SM',
-                'd50': 0.5,
-                'unit_weight': 18.5,
-                'water_content': 12.0,
-                'strap_width': 50.0,
-                'num_straps': 5,
-                'tensile_strength': 15.0
-            }
-        ])
-        file_name = "geostrap_prediction_template.xlsx"
-
-    output = BytesIO()
-    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        template.to_excel(writer, index=False, sheet_name='Template')
-
-    st.download_button(
-        label="📥 Download Prediction Template (with samples)",
-        data=output.getvalue(),
-        file_name=file_name,
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-
-if __name__ == "__main__":
-    main()
+    elif 'data' in st.session_state and st.session_state.data is not None:
+        st.markdown(f"""
+        <div class="result-box">
+            <h3 style='color: #212529;'>Batch Results:</h3>
+            <p style='color: #212529; font-size: 14px;'>
+                Processed {len(st.session_state.data)} rows. See table below.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        st.dataframe(st.session_state.data)
