@@ -342,7 +342,6 @@ def main():
                 d50 = st.number_input("D50 (mm):", value=None, placeholder="Enter value", step=0.1, format="%.2f", key="geo_d50")
                 soil_classification = st.selectbox("Soil Classification:", options=list(geogrid_classification_map.keys()), key="geo_soil_class")
 
-	
 	     tab1, tab2 = st.tabs(["Soil Parameters", "Geogrid Parameters"]
 
             with col2:
