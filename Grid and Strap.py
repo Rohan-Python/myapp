@@ -447,8 +447,8 @@ def main():
                                     format="%.1f", key="strap_phi")
                 cohesion = st.number_input("Cohesion c' (kPa):", value=None, placeholder="Enter value", step=0.1,
                                          format="%.2f", key="strap_cohesion")
-                length = st.number_input("Length (mm):", value=None, placeholder="Enter value", step=1.0,
-                                       format="%.1f", key="strap_length")
+                water_content = st.number_input("Water Content (%):", value=None, placeholder="Enter value", step=0.1,
+                                             format="%.1f", key="strap_water_content")
                 soil_classification = st.selectbox("Soil Classification:", 
                                                  options=list(geostrap_classification_map.keys()), 
                                                  key="strap_soil_class")
@@ -478,8 +478,8 @@ def main():
 
             with col1:
                 st.header("Geostrap Parameters")
-                water_content = st.number_input("Water Content (%):", value=None, placeholder="Enter value", step=0.1,
-                                             format="%.1f", key="strap_water_content")
+                length = st.number_input("Length (mm):", value=None, placeholder="Enter value", step=1.0,
+                                       format="%.1f", key="strap_length")
                 strap_width = st.number_input("Width of Straps (mm):", value=None, placeholder="Enter value", 
                                            step=1.0, format="%.1f", key="strap_width")
                 num_straps = st.number_input("Number of Straps:", value=None, placeholder="Enter value", 
