@@ -175,18 +175,38 @@ def draw_geogrid(length, md, cmd, scale_factor=5):
 
     return fig
 
+# At the top level (global scope)
+geogrid_model = None
+geostrap_model = None
+geostrap_feature_names = None
+
+def initialize_models():
+    global geogrid_model, geostrap_model, geostrap_feature_names
+    try:
+        geogrid_model = load_geogrid_model()
+        geostrap_model, geostrap_feature_names = load_geostrap_model()
+    except Exception as e:
+        st.error(f"Failed to initialize models: {e}")
+
 def calculate_geogrid_u(inputs):
+    global geogrid_model
     try:
         if geogrid_model is None:
             st.error("Geogrid model not loaded")
             return None, None
             
-        u_pred = geogrid_model.predict(inputs)[0][0]
+        if inputs is None or len(inputs) == 0:
+            st.error("No input data provided")
+            return None, None
+            
+        # Ensure all required values are present
         phi = float(inputs[0][0])
         cohesion = float(inputs[0][1])
         normal_stress = float(inputs[0][2])
         length_mm = float(inputs[0][3])
 
+        u_pred = geogrid_model.predict(inputs)[0][0]
+        
         length_m = length_mm / 1000
         phi_rad = radians(phi)
         P = 2 * u_pred * length_m * (normal_stress * tan(phi_rad) + cohesion)
@@ -197,20 +217,26 @@ def calculate_geogrid_u(inputs):
         return None, None
 
 def calculate_geostrap_u(inputs):
+    global geostrap_model
     try:
         if geostrap_model is None:
             st.error("Geostrap model not loaded")
             return None, None
             
-        u_pred = predict_geostrap(geostrap_model, inputs)
-        if u_pred is None:
+        if inputs is None or len(inputs) == 0:
+            st.error("No input data provided")
             return None, None
             
+        # Ensure all required values are present
         phi = float(inputs[0][0])
         cohesion = float(inputs[0][1])
         normal_stress = float(inputs[0][2])
         length_mm = float(inputs[0][3])
 
+        u_pred = predict_geostrap(geostrap_model, inputs)
+        if u_pred is None:
+            return None, None
+            
         length_m = length_mm / 1000
         phi_rad = radians(phi)
         P = 2 * u_pred * length_m * (normal_stress * tan(phi_rad) + cohesion)
@@ -414,36 +440,30 @@ def main():
                     pass
     
             if st.button("Run ▶", type="primary", key="geo_run"):
-                required_fields = [
-                    normal_stress, phi, cohesion, length,
-                    d50, unit_weight, water_content,
-                    md_aperture, cmd_aperture, tensile_strength
-                ]
-    
-                if None in required_fields:
-                    st.error("Please fill in all required fields")
-                else:
+                # Convert all inputs to float explicitly
+                try:
                     inputs = np.array([
                         float(phi),
                         float(cohesion),
                         float(normal_stress),
                         float(length),
-                        geogrid_classification_map[soil_classification],
+                        float(geogrid_classification_map[soil_classification]),
                         float(d50),
                         float(unit_weight),
                         float(water_content),
-                        geogrid_type_map[geogrid_type],
-                        float(bearing_members) if bearing_members else floor(float(length) / float(md_aperture)),
+                        float(geogrid_type_map[geogrid_type]),
+                        float(bearing_members) if bearing_members else floor(float(length)/float(md_aperture)),
                         float(md_aperture),
                         float(cmd_aperture),
                         float(tensile_strength)
                     ], dtype=np.float32).reshape(1, -1)
-    
+                    
                     u_pred, P = calculate_geogrid_u(inputs)
     
                     if u_pred is not None:
                         st.session_state.result = f"μ* = {u_pred:.4f}   |   P = {P:.2f} kN/m"
-
+                except Exception as e:
+                    st.error(f"Input conversion error: {e}")
     # Geostrap Tab
     elif st.session_state.current_tab == "Geostrap":
         if st.session_state.current_subtab == "Soil Parameters":
