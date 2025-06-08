@@ -421,36 +421,43 @@ def main():
                                          st.session_state.scale_factor)
                         st.pyplot(fig)
 
+                    # Moved the Run button and validation INSIDE the container
                     if st.button("Run ▶", type="primary", key="geo_run"):
                         required_fields = [
-                            normal_stress, phi, cohesion, length,
-                            d50, unit_weight, water_content,
-                            md_aperture, cmd_aperture, tensile_strength
+                            st.session_state.geo_normal_stress, 
+                            st.session_state.geo_phi,
+                            st.session_state.geo_cohesion,
+                            st.session_state.geo_length,
+                            st.session_state.geo_d50,
+                            st.session_state.geo_unit_weight,
+                            st.session_state.geo_water_content,
+                            st.session_state.geo_md_aperture,
+                            st.session_state.geo_cmd_aperture,
+                            st.session_state.geo_tensile_strength
                         ]
-
+                
                         if None in required_fields:
                             st.error("Please fill in all required fields")
                         else:
                             inputs = np.array([
-                                phi,
-                                cohesion,
-                                normal_stress,
-                                length,
-                                geogrid_classification_map[soil_classification],
-                                d50,
-                                unit_weight,
-                                water_content,
-                                geogrid_type_map[geogrid_type],
-                                bearing_members if bearing_members else floor(float(length) / float(md_aperture)),
-                                md_aperture,
-                                cmd_aperture,
-                                tensile_strength
+                                st.session_state.geo_phi,
+                                st.session_state.geo_cohesion,
+                                st.session_state.geo_normal_stress,
+                                st.session_state.geo_length,
+                                geogrid_classification_map[st.session_state.geo_soil_class],
+                                st.session_state.geo_d50,
+                                st.session_state.geo_unit_weight,
+                                st.session_state.geo_water_content,
+                                geogrid_type_map[st.session_state.geo_geogrid_type],
+                                st.session_state.geo_bearing_members if st.session_state.geo_bearing_members else floor(float(st.session_state.geo_length) / float(st.session_state.geo_md_aperture)),
+                                st.session_state.geo_md_aperture,
+                                st.session_state.geo_cmd_aperture,
+                                st.session_state.geo_tensile_strength
                             ], dtype=np.float32).reshape(1, -1)
-
+                
                             u_pred, P = calculate_geogrid_u(inputs)
-
                             if u_pred is not None:
-                                st.session_state.result = f"μ* = {u_pred:.4f}   |   P = {P:.2f} kN/m "
+                                st.session_state.result = f"μ* = {u_pred:.4f}   |   P = {P:.2f} kN/m"
 
     # Geostrap Tab
     elif st.session_state.current_tab == "Geostrap":
@@ -529,35 +536,42 @@ def main():
                     st.markdown("<p style='text-align: center; font-weight: bold;'>Geostrap Structure Reference</p>",
                               unsafe_allow_html=True)
 
+                    # Moved the Run button and validation INSIDE the container
                     if st.button("Run ▶", type="primary", key="strap_run"):
                         required_fields = [
-                            normal_stress, phi, cohesion, length,
-                            soil_classification, d50, unit_weight,
-                            water_content, strap_width, num_straps, tensile_strength
+                            st.session_state.strap_normal_stress,
+                            st.session_state.strap_phi,
+                            st.session_state.strap_cohesion,
+                            st.session_state.strap_length,
+                            st.session_state.strap_soil_class,
+                            st.session_state.strap_d50,
+                            st.session_state.strap_unit_weight,
+                            st.session_state.strap_water_content,
+                            st.session_state.strap_width,
+                            st.session_state.num_straps,
+                            st.session_state.strap_tensile_strength
                         ]
-                    
+                        
                         if None in required_fields:
                             st.error("Please fill in all required fields")
                         else:
-                            # Create input array with exactly 11 features in correct order
                             inputs = np.array([
-                                phi,
-                                cohesion,
-                                normal_stress,
-                                length,
-                                geostrap_classification_map[soil_classification],
-                                d50,
-                                unit_weight,
-                                water_content,
-                                strap_width,
-                                num_straps,
-                                tensile_strength
+                                st.session_state.strap_phi,
+                                st.session_state.strap_cohesion,
+                                st.session_state.strap_normal_stress,
+                                st.session_state.strap_length,
+                                geostrap_classification_map[st.session_state.strap_soil_class],
+                                st.session_state.strap_d50,
+                                st.session_state.strap_unit_weight,
+                                st.session_state.strap_water_content,
+                                st.session_state.strap_width,
+                                st.session_state.num_straps,
+                                st.session_state.strap_tensile_strength
                             ], dtype=np.float32).reshape(1, -1)
                             
                             u_pred, P = calculate_geostrap_u(inputs)
-                    
                             if u_pred is not None:
-                                st.session_state.result = f"μ* = {u_pred:.4f}   |   P = {P:.2f} kN/m "
+                                st.session_state.result = f"μ* = {u_pred:.4f}   |   P = {P:.2f} kN/m"
 
     # Common controls
     st.markdown("---")
