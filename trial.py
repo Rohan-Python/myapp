@@ -647,7 +647,7 @@ def main():
                 else:
                     # Calculate bearing members if not provided
                     bearing_members = (st.session_state.geo_bearing_members if st.session_state.geo_bearing_members 
-                                      else floor(float(st.session_state.geo_length) / float(st.session_state.geo_md_aperture))
+                                      else floor(float(st.session_state.geo_length) / float(st.session_state.geo_md_aperture)))
                     
                     inputs = np.array([
                         values['phi'],
