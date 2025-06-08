@@ -343,7 +343,7 @@ def main():
                                               format="%.2f", key="geo_unit_weight")
                 
                 if st.session_state.current_tab == "Geogrid":
-        	    tab2 = st.tabs(["Geogrid Parameters"])
+                    tab2 = st.tabs(["Geogrid Parameters"])
                 
 
             with col2:
