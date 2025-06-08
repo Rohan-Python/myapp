@@ -467,6 +467,11 @@ def main():
                 unit_weight = st.number_input("Unit Weight (kN/m³):", value=None, placeholder="Enter value", step=0.1,
                                            format="%.2f", key="strap_unit_weight")
 
+            # NEXT BUTTON (Soil Parameters → Geostrap Parameters)
+            if st.button("Next →", key="strap_next_soil_to_strap"):
+                st.session_state.active_subtab = "Geostrap Parameters"
+                st.rerun()
+
             with col2:
                 soil_img = get_image_base64("PulloutboxDiagram.jpg")
                 if soil_img:
@@ -496,6 +501,10 @@ def main():
                                            step=1, key="num_straps")
                 tensile_strength = st.number_input("Tensile Strength (kN):", value=None, placeholder="Enter value",
                                                  step=0.1, format="%.1f", key="strap_tensile_strength")
+
+            if st.button("← Previous", key="strap_prev_strap_to_soil"):
+            st.session_state.active_subtab = "Soil Parameters"
+            st.rerun()
 
             with col2:
                 geostrap_img = get_image_base64("Geostrap.png")
