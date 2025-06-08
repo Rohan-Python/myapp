@@ -342,7 +342,10 @@ def main():
                 unit_weight = st.number_input("Unit Weight (kN/m³):", value=None, placeholder="Enter value", step=0.1,
                                               format="%.2f", key="geo_unit_weight")
                 
-                
+            # NEXT BUTTON (Soil Parameters → Geogrid Parameters)
+            if st.button("Next →", key="geo_next_soil_to_grid"):
+                st.session_state.active_subtab = "Geogrid Parameters"  # Optional: Track subtab if needed
+                st.rerun()    
                 
             with col2:
                 soil_img = get_image_base64("PulloutboxDiagram.jpg")
@@ -359,10 +362,7 @@ def main():
                     "<p style='text-align: center; font-weight: bold; font-size: 20px;'>Soil-Geogrid Interaction</p>",
                     unsafe_allow_html=True
                 )
-                # NEXT BUTTON (Soil Parameters → Geogrid Parameters)
-                if st.button("Next →", key="geo_next_soil_to_grid"):
-                    st.session_state.active_subtab = "Geogrid Parameters"  # Optional: Track subtab if needed
-                    st.rerun()
+                
 
         with tab2:
             col1, col2 = st.columns([1, 1])
@@ -383,6 +383,11 @@ def main():
                                                    step=0.1, format="%.1f", key="geo_tensile_strength")
                 geogrid_type = st.selectbox("Geogrid Type:", options=list(geogrid_type_map.keys()), key="geo_geogrid_type")
 
+             # PREVIOUS BUTTON (Geogrid Parameters → Soil Parameters)
+            if st.button("← Previous", key="geo_prev_grid_to_soil"):
+                st.session_state.active_subtab = "Soil Parameters"
+                st.rerun()
+
             with col2:
                 geogrid_img = get_image_base64("Geogrid.png")
                 if geogrid_img:
@@ -392,10 +397,7 @@ def main():
                     )
                 st.markdown("<p style='text-align: center; font-weight: bold;'>Geogrid Structure Reference</p>",
                             unsafe_allow_html=True)
-                # PREVIOUS BUTTON (Geogrid Parameters → Soil Parameters)
-                if st.button("← Previous", key="geo_prev_grid_to_soil"):
-                    st.session_state.active_subtab = "Soil Parameters"
-                    st.rerun()
+               
 
                 st.markdown("---")
                 col1, col2 = st.columns(2)
