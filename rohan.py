@@ -256,6 +256,8 @@ def main():
         st.session_state.data = None
     if 'current_tab' not in st.session_state:
         st.session_state.current_tab = "Geogrid"
+    if 'active_geogrid_tab' not in st.session_state:
+        st.session_state.active_geogrid_tab = "Soil Parameters"
 
     # CSS for styling
     st.markdown("""
@@ -321,7 +323,7 @@ def main():
                     use_container_width=True, type="primary" if st.session_state.current_tab == "Geostrap" else "secondary"):
             st.session_state.current_tab = "Geostrap"
 
-    # Geogrid Tab (unchanged from original code)
+    # Geogrid Tab
     if st.session_state.current_tab == "Geogrid":
         tab1, tab2 = st.tabs(["Soil Parameters", "Geogrid Parameters"])
 
@@ -331,16 +333,24 @@ def main():
             with col1:
                 st.header("Soil Parameters")
                 normal_stress = st.number_input("Normal Stress (kPa):", value=None, placeholder="Enter value", step=0.1,
-                                                format="%.2f", key="geo_normal_stress")
+                                              format="%.2f", key="geo_normal_stress")
                 phi = st.number_input("Φ' (degrees):", value=None, placeholder="Enter value", step=0.1, format="%.1f", key="geo_phi")
                 cohesion = st.number_input("Cohesion c' (kPa):", value=None, placeholder="Enter value", step=0.1,
-                                           format="%.2f", key="geo_cohesion")
-                unit_weight = st.number_input("Unit Weight (kN/m³):", value=None, placeholder="Enter value", step=0.1,
-                                              format="%.2f", key="geo_unit_weight")
+                                         format="%.2f", key="geo_cohesion")
                 water_content = st.number_input("Water Content (%):", value=None, placeholder="Enter value", step=0.1,
-                                                format="%.1f", key="geo_water_content")
-                d50 = st.number_input("D50 (mm):", value=None, placeholder="Enter value", step=0.1, format="%.2f", key="geo_d50")
+                                              format="%.1f", key="geo_water_content")    
                 soil_classification = st.selectbox("Soil Classification:", options=list(geogrid_classification_map.keys()), key="geo_soil_class")
+                d50 = st.number_input("D50 (mm):", value=None, placeholder="Enter value", step=0.1, format="%.2f", key="geo_d50")    
+                unit_weight = st.number_input("Unit Weight (kN/m³):", value=None, placeholder="Enter value", step=0.1,
+                                            format="%.2f", key="geo_unit_weight")
+                
+                # Add this button at the bottom of col1
+                if st.button("Go to Geogrid Parameters", 
+                           key="bottom_geogrid_button",
+                           use_container_width=True):
+                    # This will switch to the Geogrid Parameters tab
+                    st.session_state.active_geogrid_tab = "Geogrid Parameters"
+                    st.rerun()
 
             with col2:
                 soil_img = get_image_base64("PulloutboxDiagram.jpg")
@@ -364,18 +374,25 @@ def main():
             with col1:
                 st.header("Geogrid Parameters")
                 length = st.number_input("Length (mm):", value=None, placeholder="Enter value", step=1.0, format="%.1f",
-                                         key="geo_length", on_change=update_bearing_members)
+                                       key="geo_length", on_change=update_bearing_members)
                 md_aperture = st.number_input("MD Aperture (mm):", value=None, placeholder="Enter value", step=0.1,
-                                              format="%.1f",
-                                              key="geo_md_aperture", on_change=update_bearing_members)
+                                             format="%.1f",
+                                             key="geo_md_aperture", on_change=update_bearing_members)
                 cmd_aperture = st.number_input("CMD Aperture (mm):", value=None, placeholder="Enter value", step=0.1,
-                                               format="%.1f",
-                                               key="geo_cmd_aperture", on_change=update_bearing_members)
+                                              format="%.1f",
+                                              key="geo_cmd_aperture", on_change=update_bearing_members)
                 bearing_members = st.number_input("Bearing Members:", value=None, placeholder="Enter value", step=1,
-                                                  key="geo_bearing_members")
+                                                key="geo_bearing_members")
                 tensile_strength = st.number_input("Tensile Strength (kN/m):", value=None, placeholder="Enter value",
-                                                   step=0.1, format="%.1f", key="geo_tensile_strength")
+                                                 step=0.1, format="%.1f", key="geo_tensile_strength")
                 geogrid_type = st.selectbox("Geogrid Type:", options=list(geogrid_type_map.keys()), key="geo_geogrid_type")
+
+                # Optional: Add button to go back to Soil Parameters
+                if st.button("Back to Soil Parameters",
+                           key="bottom_soil_button",
+                           use_container_width=True):
+                    st.session_state.active_geogrid_tab = "Soil Parameters"
+                    st.rerun()
 
             with col2:
                 geogrid_img = get_image_base64("Geogrid.png")
