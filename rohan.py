@@ -342,7 +342,8 @@ def main():
                 unit_weight = st.number_input("Unit Weight (kN/m³):", value=None, placeholder="Enter value", step=0.1,
                                               format="%.2f", key="geo_unit_weight")
                 
-                
+                if st.session_state.current_tab == "Geogrid":
+        	    tab2 = st.tabs(["Geogrid Parameters"])
                 
 
             with col2:
