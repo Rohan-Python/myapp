@@ -296,12 +296,12 @@ def main():
                             required_fields['unit_weight'],
                             required_fields['water_content'],
                             geogrid_type_map[st.session_state.geo_geogrid_type],
-                            st.session_state.geo_bearing_members if st.session_state.geo_bearing_members else floor(float(required_fields['length']) / float(required_fields['md_aperture']),
+                            st.session_state.geo_bearing_members if st.session_state.geo_bearing_members else floor(float(required_fields['length']) / float(required_fields['md_aperture'])),
                             required_fields['md_aperture'],
                             required_fields['cmd_aperture'],
-                            required_fields['tensile_strength']
+                            required_fields['tensile_strength'],
                         ], dtype=np.float32).reshape(1, -1)
-
+                    
                         u_pred, P = calculate_geogrid_u(inputs)
                         if u_pred is not None:
                             st.session_state.result = f"μ* = {u_pred:.4f}   |   P = {P:.2f} kN/m"
