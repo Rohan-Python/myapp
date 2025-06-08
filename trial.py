@@ -343,7 +343,7 @@ def main():
                 soil_classification = st.selectbox("Soil Classification:", options=list(geogrid_classification_map.keys()), key="geo_soil_class")
     
     if st.session_state.current_tab == "Geogrid":
-        tab1, tab2 = st.tabs(["Soil Parameters", "Geogrid Parameters"])	
+        tab1, tab2 = st.tabs(["Soil Parameters", "Geogrid Parameters"])
 	    with col2:
                 soil_img = get_image_base64("PulloutboxDiagram.jpg")
                 if soil_img:
