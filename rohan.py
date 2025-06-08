@@ -344,13 +344,14 @@ def main():
 # Add navigation buttons at the bottom
             st.markdown('<div class="tab-buttons"></div>', unsafe_allow_html=True)
             col1, col2 = st.columns(2)
+            # In the Geogrid Soil Parameters tab
             with col1:
                 if st.button("Soil Parameters", disabled=True, help="You are currently on this tab"):
                     pass
             with col2:
                 if st.button("Geogrid Parameters", key="geo_bottom_nav_to_grid"):
-                    st.session_state.active_subtab = "Geogrid Parameters"
-                    st.rerun()
+                    st.session_state.current_tab = "Geogrid"  # Ensure main tab is correct
+                    st.rerun()  # This will refresh and show tab2
             with col2:
                 soil_img = get_image_base64("PulloutboxDiagram.jpg")
                 if soil_img:
@@ -388,10 +389,11 @@ def main():
 # Add navigation buttons at the bottom
             st.markdown('<div class="tab-buttons"></div>', unsafe_allow_html=True)
             col1, col2 = st.columns(2)
+            # In the Geogrid Parameters tab
             with col1:
                 if st.button("Soil Parameters", key="geo_bottom_nav_to_soil"):
-                    st.session_state.active_subtab = "Soil Parameters"
-                    st.rerun()
+                    st.session_state.current_tab = "Geogrid"  # Ensure main tab is correct
+                    st.rerun()  # This will refresh and show tab1
             with col2:
                 if st.button("Geogrid Parameters", disabled=True, help="You are currently on this tab"):
                     pass
@@ -477,13 +479,14 @@ def main():
  # Add navigation buttons at the bottom
             st.markdown('<div class="tab-buttons"></div>', unsafe_allow_html=True)
             col1, col2 = st.columns(2)
+            # In the Geostrap Soil Parameters tab
             with col1:
                 if st.button("Soil Parameters", disabled=True, help="You are currently on this tab"):
                     pass
             with col2:
                 if st.button("Geostrap Parameters", key="strap_bottom_nav_to_strap"):
-                    st.session_state.active_subtab = "Geostrap Parameters"
-                    st.rerun()
+                    st.session_state.current_tab = "Geostrap"  # Ensure main tab is correct
+                    st.rerun()  # This will refresh and show tab2
             with col2:
                 soil_img = get_image_base64("PulloutboxDiagram.jpg")
                 if soil_img:
@@ -516,10 +519,11 @@ def main():
 # Add navigation buttons at the bottom
             st.markdown('<div class="tab-buttons"></div>', unsafe_allow_html=True)
             col1, col2 = st.columns(2)
+            # In the Geostrap Parameters tab
             with col1:
                 if st.button("Soil Parameters", key="strap_bottom_nav_to_soil"):
-                    st.session_state.active_subtab = "Soil Parameters"
-                    st.rerun()
+                    st.session_state.current_tab = "Geostrap"  # Ensure main tab is correct
+                    st.rerun()  # This will refresh and show tab1
             with col2:
                 if st.button("Geostrap Parameters", disabled=True, help="You are currently on this tab"):
                     pass
