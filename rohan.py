@@ -342,20 +342,20 @@ def main():
                 unit_weight = st.number_input("Unit Weight (kN/m³):", value=None, placeholder="Enter value", step=0.1,
                                               format="%.2f", key="geo_unit_weight")
                 
-	        if st.button("Go to Geogrid Parameters", key="bottom_geogrid_tab"):
-	                # Use JavaScript to click the Geogrid Parameters tab
-	                js = """
-	                <script>
-	                // Find the tab button for Geogrid Parameters and click it
-	                var tabs = window.parent.document.querySelectorAll('[data-testid="stTab"] button');
-	                tabs.forEach(function(tab) {
-	                    if (tab.textContent.includes('Geogrid Parameters')) {
-	                        tab.click();
-	                    }
-	                });
-	                </script>
-	                """
-	                st.components.v1.html(js, height=0)
+                if st.button("Go to Geogrid Parameters", key="bottom_geogrid_tab"):
+		        # Use JavaScript to click the Geogrid Parameters tab
+		                js = """
+		                <script>
+		                // Find the tab button for Geogrid Parameters and click it
+		                var tabs = window.parent.document.querySelectorAll('[data-testid="stTab"] button');
+		                tabs.forEach(function(tab) {
+		                    if (tab.textContent.includes('Geogrid Parameters')) {
+		                        tab.click();
+		                    }
+		                });
+		                </script>
+		                """
+		                st.components.v1.html(js, height=0)        
                 
 
             with col2:
