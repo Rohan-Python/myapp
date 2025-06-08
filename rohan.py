@@ -340,23 +340,19 @@ def main():
                 soil_classification = st.selectbox("Soil Classification:", options=list(geogrid_classification_map.keys()), key="geo_soil_class")
                 d50 = st.number_input("D50 (mm):", value=None, placeholder="Enter value", step=0.1, format="%.2f", key="geo_d50")    
                 unit_weight = st.number_input("Unit Weight (kN/m³):", value=None, placeholder="Enter value", step=0.1,
-                                              format="%.2f", key="geo_unit_weight")
-                
-                if st.button("Go to Geogrid Parameters", key="bottom_geogrid_tab"):
-		        # Use JavaScript to click the Geogrid Parameters tab
-		                js = """
-		                <script>
-		                // Find the tab button for Geogrid Parameters and click it
-		                var tabs = window.parent.document.querySelectorAll('[data-testid="stTab"] button');
-		                tabs.forEach(function(tab) {
-		                    if (tab.textContent.includes('Geogrid Parameters')) {
-		                        tab.click();
-		                    }
-		                });
-		                </script>
-		                """
-		                st.components.v1.html(js, height=0)        
-                
+                                              format="%.2f", key="geo_unit_weight")        
+                st.markdown("---")  # Optional divider
+                st.write("Navigate to:")
+                # Create the same tabs again at the bottom
+                bottom_tab1, bottom_tab2 = st.tabs([" ", " "])  # Empty labels since we'll use buttons
+            
+                with bottom_tab1:
+                    if st.button("Soil Parameters", disabled=True):
+                        pass
+            
+                with bottom_tab2:
+                    if st.button("Go to Geogrid Parameters"):
+                        pass  # The tab switch happens automatically
 
             with col2:
                 soil_img = get_image_base64("PulloutboxDiagram.jpg")
@@ -392,21 +388,6 @@ def main():
                 tensile_strength = st.number_input("Tensile Strength (kN/m):", value=None, placeholder="Enter value",
                                                    step=0.1, format="%.1f", key="geo_tensile_strength")
                 geogrid_type = st.selectbox("Geogrid Type:", options=list(geogrid_type_map.keys()), key="geo_geogrid_type")
-		    
-                if st.button("Back to Soil Parameters", key="back_to_soil"):
-	                # Use JavaScript to click the Soil Parameters tab
-	                js = """
-	                <script>
-	                // Find the tab button for Soil Parameters and click it
-	                var tabs = window.parent.document.querySelectorAll('[data-testid="stTab"] button');
-	                tabs.forEach(function(tab) {
-	                    if (tab.textContent.includes('Soil Parameters')) {
-	                        tab.click();
-	                    }
-	                });
-	                </script>
-	                """
-	                st.components.v1.html(js, height=0)
 
             with col2:
                 geogrid_img = get_image_base64("Geogrid.png")
