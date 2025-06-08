@@ -256,6 +256,8 @@ def main():
         st.session_state.data = None
     if 'current_tab' not in st.session_state:
         st.session_state.current_tab = "Geogrid"
+    if 'active_subtab' not in st.session_state:  # Track subtab state
+        st.session_state.active_subtab = "Soil Parameters"
 
     # CSS for styling
     st.markdown("""
@@ -316,237 +318,246 @@ def main():
         if st.button("Geogrid", key="geogrid_tab", 
                     use_container_width=True, type="primary" if st.session_state.current_tab == "Geogrid" else "secondary"):
             st.session_state.current_tab = "Geogrid"
+            st.session_state.active_subtab = "Soil Parameters"
+            st.rerun()
     with col2:
         if st.button("Geostrap", key="geostrap_tab",
                     use_container_width=True, type="primary" if st.session_state.current_tab == "Geostrap" else "secondary"):
             st.session_state.current_tab = "Geostrap"
+            st.session_state.active_subtab = "Soil Parameters"
+            st.rerun()
 
-    # Geogrid Tab (unchanged from original code)
+    # Geogrid Tab
     if st.session_state.current_tab == "Geogrid":
-        tab1, tab2 = st.tabs(["Soil Parameters", "Geogrid Parameters"])
+        # Soil Parameters Subtab
+        if st.session_state.active_subtab == "Soil Parameters":
+            with st.container():
+                col1, col2 = st.columns([1, 1])
 
-        with tab1:
-            col1, col2 = st.columns([1, 1])
-
-            with col1:
-                st.header("Soil Parameters")
-                normal_stress = st.number_input("Normal Stress (kPa):", value=None, placeholder="Enter value", step=0.1,
-                                                format="%.2f", key="geo_normal_stress")
-                phi = st.number_input("Φ' (degrees):", value=None, placeholder="Enter value", step=0.1, format="%.1f", key="geo_phi")
-                cohesion = st.number_input("Cohesion c' (kPa):", value=None, placeholder="Enter value", step=0.1,
-                                           format="%.2f", key="geo_cohesion")
-                water_content = st.number_input("Water Content (%):", value=None, placeholder="Enter value", step=0.1,
-                                                format="%.1f", key="geo_water_content")
-                soil_classification = st.selectbox("Soil Classification:", options=list(geogrid_classification_map.keys()), key="geo_soil_class")
-                d50 = st.number_input("D50 (mm):", value=None, placeholder="Enter value", step=0.1, format="%.2f", key="geo_d50")
-                unit_weight = st.number_input("Unit Weight (kN/m³):", value=None, placeholder="Enter value", step=0.1,
-                                              format="%.2f", key="geo_unit_weight")
-                
-            # NEXT BUTTON (Soil Parameters → Geogrid Parameters)
-            if st.button("Next →", key="geo_next_soil_to_grid"):
-                st.session_state.active_subtab = "Geogrid Parameters"  # Optional: Track subtab if needed
-                st.rerun()    
-                
-            with col2:
-                soil_img = get_image_base64("PulloutboxDiagram.jpg")
-                if soil_img:
-                    st.markdown(
-                        f'''
-                        <div style="display: flex; justify-content: center;">
-                            <img src="data:image/jpg;base64,{soil_img}" style="max-width: 100%; width: 1200px; height: auto;">
-                        </div>
-                        ''',
-                        unsafe_allow_html=True
-                    )
-                st.markdown(
-                    "<p style='text-align: center; font-weight: bold; font-size: 20px;'>Soil-Geogrid Interaction</p>",
-                    unsafe_allow_html=True
-                )
-                
-
-        with tab2:
-            col1, col2 = st.columns([1, 1])
-
-            with col1:
-                st.header("Geogrid Parameters")
-                length = st.number_input("Length (mm):", value=None, placeholder="Enter value", step=1.0, format="%.1f",
-                                         key="geo_length", on_change=update_bearing_members)
-                md_aperture = st.number_input("MD Aperture (mm):", value=None, placeholder="Enter value", step=0.1,
-                                              format="%.1f",
-                                              key="geo_md_aperture", on_change=update_bearing_members)
-                cmd_aperture = st.number_input("CMD Aperture (mm):", value=None, placeholder="Enter value", step=0.1,
-                                               format="%.1f",
-                                               key="geo_cmd_aperture", on_change=update_bearing_members)
-                bearing_members = st.number_input("Bearing Members:", value=None, placeholder="Enter value", step=1,
-                                                  key="geo_bearing_members")
-                tensile_strength = st.number_input("Tensile Strength (kN/m):", value=None, placeholder="Enter value",
-                                                   step=0.1, format="%.1f", key="geo_tensile_strength")
-                geogrid_type = st.selectbox("Geogrid Type:", options=list(geogrid_type_map.keys()), key="geo_geogrid_type")
-
-             # PREVIOUS BUTTON (Geogrid Parameters → Soil Parameters)
-            if st.button("← Previous", key="geo_prev_grid_to_soil"):
-                st.session_state.active_subtab = "Soil Parameters"
-                st.rerun()
-
-            with col2:
-                geogrid_img = get_image_base64("Geogrid.png")
-                if geogrid_img:
-                    st.markdown(
-                        f'<img src="data:image/png;base64,{geogrid_img}" style="width: 100%;">',
-                        unsafe_allow_html=True
-                    )
-                st.markdown("<p style='text-align: center; font-weight: bold;'>Geogrid Structure Reference</p>",
-                            unsafe_allow_html=True)
-               
-
-                st.markdown("---")
-                col1, col2 = st.columns(2)
                 with col1:
-                    if st.button("Zoom In", key="geo_zoom_in"):
-                        st.session_state.scale_factor *= 1.2
+                    st.header("Soil Parameters")
+                    normal_stress = st.number_input("Normal Stress (kPa):", value=None, placeholder="Enter value", step=0.1,
+                                                  format="%.2f", key="geo_normal_stress")
+                    phi = st.number_input("Φ' (degrees):", value=None, placeholder="Enter value", step=0.1, format="%.1f", key="geo_phi")
+                    cohesion = st.number_input("Cohesion c' (kPa):", value=None, placeholder="Enter value", step=0.1,
+                                             format="%.2f", key="geo_cohesion")
+                    water_content = st.number_input("Water Content (%):", value=None, placeholder="Enter value", step=0.1,
+                                                 format="%.1f", key="geo_water_content")
+                    soil_classification = st.selectbox("Soil Classification:", options=list(geogrid_classification_map.keys()), key="geo_soil_class")
+                    d50 = st.number_input("D50 (mm):", value=None, placeholder="Enter value", step=0.1, format="%.2f", key="geo_d50")
+                    unit_weight = st.number_input("Unit Weight (kN/m³):", value=None, placeholder="Enter value", step=0.1,
+                                               format="%.2f", key="geo_unit_weight")
+
+                # NEXT BUTTON (Soil Parameters → Geogrid Parameters)
+                if st.button("Next →", key="geo_next_soil_to_grid"):
+                    st.session_state.active_subtab = "Geogrid Parameters"
+                    st.rerun()
+
                 with col2:
-                    if st.button("Zoom Out", key="geo_zoom_out"):
-                        st.session_state.scale_factor *= 0.8
+                    soil_img = get_image_base64("PulloutboxDiagram.jpg")
+                    if soil_img:
+                        st.markdown(
+                            f'''
+                            <div style="display: flex; justify-content: center;">
+                                <img src="data:image/jpg;base64,{soil_img}" style="max-width: 100%; width: 1200px; height: auto;">
+                            </div>
+                            ''',
+                            unsafe_allow_html=True
+                        )
+                    st.markdown(
+                        "<p style='text-align: center; font-weight: bold; font-size: 20px;'>Soil-Geogrid Interaction</p>",
+                        unsafe_allow_html=True
+                    )
 
-                if length and md_aperture and cmd_aperture:
-                    fig = draw_geogrid(float(length), float(md_aperture), float(cmd_aperture),
-                                       st.session_state.scale_factor)
-                    st.pyplot(fig)
+        # Geogrid Parameters Subtab
+        elif st.session_state.active_subtab == "Geogrid Parameters":
+            with st.container():
+                col1, col2 = st.columns([1, 1])
 
-                if st.button("Run ▶", type="primary", key="geo_run"):
-                    required_fields = [
-                        normal_stress, phi, cohesion, length,
-                        d50, unit_weight, water_content,
-                        md_aperture, cmd_aperture, tensile_strength
-                    ]
+                with col1:
+                    st.header("Geogrid Parameters")
+                    length = st.number_input("Length (mm):", value=None, placeholder="Enter value", step=1.0, format="%.1f",
+                                           key="geo_length", on_change=update_bearing_members)
+                    md_aperture = st.number_input("MD Aperture (mm):", value=None, placeholder="Enter value", step=0.1,
+                                                format="%.1f",
+                                                key="geo_md_aperture", on_change=update_bearing_members)
+                    cmd_aperture = st.number_input("CMD Aperture (mm):", value=None, placeholder="Enter value", step=0.1,
+                                                 format="%.1f",
+                                                 key="geo_cmd_aperture", on_change=update_bearing_members)
+                    bearing_members = st.number_input("Bearing Members:", value=None, placeholder="Enter value", step=1,
+                                                    key="geo_bearing_members")
+                    tensile_strength = st.number_input("Tensile Strength (kN/m):", value=None, placeholder="Enter value",
+                                                     step=0.1, format="%.1f", key="geo_tensile_strength")
+                    geogrid_type = st.selectbox("Geogrid Type:", options=list(geogrid_type_map.keys()), key="geo_geogrid_type")
 
-                    if None in required_fields:
-                        st.error("Please fill in all required fields")
-                    else:
-                        inputs = np.array([
-                            phi,
-                            cohesion,
-                            normal_stress,
-                            length,
-                            geogrid_classification_map[soil_classification],
-                            d50,
-                            unit_weight,
-                            water_content,
-                            geogrid_type_map[geogrid_type],
-                            bearing_members if bearing_members else floor(float(length) / float(md_aperture)),
-                            md_aperture,
-                            cmd_aperture,
-                            tensile_strength
-                        ], dtype=np.float32).reshape(1, -1)
+                # PREVIOUS BUTTON (Geogrid Parameters → Soil Parameters)
+                if st.button("← Previous", key="geo_prev_grid_to_soil"):
+                    st.session_state.active_subtab = "Soil Parameters"
+                    st.rerun()
 
-                        u_pred, P = calculate_geogrid_u(inputs)
+                with col2:
+                    geogrid_img = get_image_base64("Geogrid.png")
+                    if geogrid_img:
+                        st.markdown(
+                            f'<img src="data:image/png;base64,{geogrid_img}" style="width: 100%;">',
+                            unsafe_allow_html=True
+                        )
+                    st.markdown("<p style='text-align: center; font-weight: bold;'>Geogrid Structure Reference</p>",
+                              unsafe_allow_html=True)
 
-                        if u_pred is not None:
-                            st.session_state.result = f"μ* = {u_pred:.4f}   |   P = {P:.2f} kN/m "
+                    st.markdown("---")
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        if st.button("Zoom In", key="geo_zoom_in"):
+                            st.session_state.scale_factor *= 1.2
+                            st.rerun()
+                    with col2:
+                        if st.button("Zoom Out", key="geo_zoom_out"):
+                            st.session_state.scale_factor *= 0.8
+                            st.rerun()
 
-    # Geostrap Tab (updated for 11 inputs)
+                    if length and md_aperture and cmd_aperture:
+                        fig = draw_geogrid(float(length), float(md_aperture), float(cmd_aperture),
+                                         st.session_state.scale_factor)
+                        st.pyplot(fig)
+
+                    if st.button("Run ▶", type="primary", key="geo_run"):
+                        required_fields = [
+                            normal_stress, phi, cohesion, length,
+                            d50, unit_weight, water_content,
+                            md_aperture, cmd_aperture, tensile_strength
+                        ]
+
+                        if None in required_fields:
+                            st.error("Please fill in all required fields")
+                        else:
+                            inputs = np.array([
+                                phi,
+                                cohesion,
+                                normal_stress,
+                                length,
+                                geogrid_classification_map[soil_classification],
+                                d50,
+                                unit_weight,
+                                water_content,
+                                geogrid_type_map[geogrid_type],
+                                bearing_members if bearing_members else floor(float(length) / float(md_aperture)),
+                                md_aperture,
+                                cmd_aperture,
+                                tensile_strength
+                            ], dtype=np.float32).reshape(1, -1)
+
+                            u_pred, P = calculate_geogrid_u(inputs)
+
+                            if u_pred is not None:
+                                st.session_state.result = f"μ* = {u_pred:.4f}   |   P = {P:.2f} kN/m "
+
+    # Geostrap Tab
     elif st.session_state.current_tab == "Geostrap":
-        tab1, tab2 = st.tabs(["Soil Parameters", "Geostrap Parameters"])
+        # Soil Parameters Subtab
+        if st.session_state.active_subtab == "Soil Parameters":
+            with st.container():
+                col1, col2 = st.columns([1, 1])
 
-        with tab1:
-            col1, col2 = st.columns([1, 1])
+                with col1:
+                    st.header("Soil Parameters")
+                    normal_stress = st.number_input("Normal Stress (kPa):", value=None, placeholder="Enter value", step=0.1,
+                                                  format="%.2f", key="strap_normal_stress")
+                    phi = st.number_input("Φ' (degrees):", value=None, placeholder="Enter value", step=0.1, 
+                                        format="%.1f", key="strap_phi")
+                    cohesion = st.number_input("Cohesion c' (kPa):", value=None, placeholder="Enter value", step=0.1,
+                                             format="%.2f", key="strap_cohesion")
+                    water_content = st.number_input("Water Content (%):", value=None, placeholder="Enter value", step=0.1,
+                                                 format="%.1f", key="strap_water_content")
+                    soil_classification = st.selectbox("Soil Classification:", 
+                                                     options=list(geostrap_classification_map.keys()), 
+                                                     key="strap_soil_class")
+                    d50 = st.number_input("D50 (mm):", value=None, placeholder="Enter value", step=0.1, 
+                                         format="%.2f", key="strap_d50")
+                    unit_weight = st.number_input("Unit Weight (kN/m³):", value=None, placeholder="Enter value", step=0.1,
+                                               format="%.2f", key="strap_unit_weight")
 
-            with col1:
-                st.header("Soil Parameters")
-                normal_stress = st.number_input("Normal Stress (kPa):", value=None, placeholder="Enter value", step=0.1,
-                                              format="%.2f", key="strap_normal_stress")
-                phi = st.number_input("Φ' (degrees):", value=None, placeholder="Enter value", step=0.1, 
-                                    format="%.1f", key="strap_phi")
-                cohesion = st.number_input("Cohesion c' (kPa):", value=None, placeholder="Enter value", step=0.1,
-                                         format="%.2f", key="strap_cohesion")
-                water_content = st.number_input("Water Content (%):", value=None, placeholder="Enter value", step=0.1,
-                                             format="%.1f", key="strap_water_content")
-                soil_classification = st.selectbox("Soil Classification:", 
-                                                 options=list(geostrap_classification_map.keys()), 
-                                                 key="strap_soil_class")
-                d50 = st.number_input("D50 (mm):", value=None, placeholder="Enter value", step=0.1, 
-                                     format="%.2f", key="strap_d50")
-                unit_weight = st.number_input("Unit Weight (kN/m³):", value=None, placeholder="Enter value", step=0.1,
-                                           format="%.2f", key="strap_unit_weight")
+                # NEXT BUTTON (Soil Parameters → Geostrap Parameters)
+                if st.button("Next →", key="strap_next_soil_to_strap"):
+                    st.session_state.active_subtab = "Geostrap Parameters"
+                    st.rerun()
 
-            # NEXT BUTTON (Soil Parameters → Geostrap Parameters)
-            if st.button("Next →", key="strap_next_soil_to_strap"):
-                st.session_state.active_subtab = "Geostrap Parameters"
-                st.rerun()
-
-            with col2:
-                soil_img = get_image_base64("PulloutboxDiagram.jpg")
-                if soil_img:
+                with col2:
+                    soil_img = get_image_base64("PulloutboxDiagram.jpg")
+                    if soil_img:
+                        st.markdown(
+                            f'''
+                            <div style="display: flex; justify-content: center;">
+                                <img src="data:image/jpg;base64,{soil_img}" style="max-width: 100%; width: 1200px; height: auto;">
+                            </div>
+                            ''',
+                            unsafe_allow_html=True
+                        )
                     st.markdown(
-                        f'''
-                        <div style="display: flex; justify-content: center;">
-                            <img src="data:image/jpg;base64,{soil_img}" style="max-width: 100%; width: 1200px; height: auto;">
-                        </div>
-                        ''',
+                        "<p style='text-align: center; font-weight: bold; font-size: 20px;'>Soil-Geostrap Interaction</p>",
                         unsafe_allow_html=True
                     )
-                st.markdown(
-                    "<p style='text-align: center; font-weight: bold; font-size: 20px;'>Soil-Geostrap Interaction</p>",
-                    unsafe_allow_html=True
-                )
 
-        with tab2:
-            col1, col2 = st.columns([1, 1])
+        # Geostrap Parameters Subtab
+        elif st.session_state.active_subtab == "Geostrap Parameters":
+            with st.container():
+                col1, col2 = st.columns([1, 1])
 
-            with col1:
-                st.header("Geostrap Parameters")
-                length = st.number_input("Length (mm):", value=None, placeholder="Enter value", step=1.0,
-                                       format="%.1f", key="strap_length")
-                strap_width = st.number_input("Width of Straps (mm):", value=None, placeholder="Enter value", 
-                                           step=1.0, format="%.1f", key="strap_width")
-                num_straps = st.number_input("Number of Straps:", value=None, placeholder="Enter value", 
-                                           step=1, key="num_straps")
-                tensile_strength = st.number_input("Tensile Strength (kN):", value=None, placeholder="Enter value",
-                                                 step=0.1, format="%.1f", key="strap_tensile_strength")
+                with col1:
+                    st.header("Geostrap Parameters")
+                    length = st.number_input("Length (mm):", value=None, placeholder="Enter value", step=1.0,
+                                           format="%.1f", key="strap_length")
+                    strap_width = st.number_input("Width of Straps (mm):", value=None, placeholder="Enter value", 
+                                               step=1.0, format="%.1f", key="strap_width")
+                    num_straps = st.number_input("Number of Straps:", value=None, placeholder="Enter value", 
+                                               step=1, key="num_straps")
+                    tensile_strength = st.number_input("Tensile Strength (kN):", value=None, placeholder="Enter value",
+                                                     step=0.1, format="%.1f", key="strap_tensile_strength")
 
-            if st.button("← Previous", key="strap_prev_strap_to_soil"):
-                st.session_state.active_subtab = "Soil Parameters"
-                st.rerun()
+                # PREVIOUS BUTTON (Geostrap Parameters → Soil Parameters)
+                if st.button("← Previous", key="strap_prev_strap_to_soil"):
+                    st.session_state.active_subtab = "Soil Parameters"
+                    st.rerun()
 
-            with col2:
-                geostrap_img = get_image_base64("Geostrap.png")
-                if geostrap_img:
-                    st.markdown(
-                        f'<img src="data:image/png;base64,{geostrap_img}" style="width: 100%;">',
-                        unsafe_allow_html=True
-                    )
-                st.markdown("<p style='text-align: center; font-weight: bold;'>Geostrap Structure Reference</p>",
-                          unsafe_allow_html=True)
+                with col2:
+                    geostrap_img = get_image_base64("Geostrap.png")
+                    if geostrap_img:
+                        st.markdown(
+                            f'<img src="data:image/png;base64,{geostrap_img}" style="width: 100%;">',
+                            unsafe_allow_html=True
+                        )
+                    st.markdown("<p style='text-align: center; font-weight: bold;'>Geostrap Structure Reference</p>",
+                              unsafe_allow_html=True)
 
-                if st.button("Run ▶", type="primary", key="strap_run"):
-                    required_fields = [
-                        normal_stress, phi, cohesion, length,
-                        soil_classification, d50, unit_weight,
-                        water_content, strap_width, num_straps, tensile_strength
-                    ]
-                
-                    if None in required_fields:
-                        st.error("Please fill in all required fields")
-                    else:
-                        # Create input array with exactly 11 features in correct order
-                        inputs = np.array([
-                            phi,
-                            cohesion,
-                            normal_stress,
-                            length,
-                            geostrap_classification_map[soil_classification],
-                            d50,
-                            unit_weight,
-                            water_content,
-                            strap_width,
-                            num_straps,
-                            tensile_strength
-                        ], dtype=np.float32).reshape(1, -1)
-                        
-                        u_pred, P = calculate_geostrap_u(inputs)
-                
-                        if u_pred is not None:
-                            st.session_state.result = f"μ* = {u_pred:.4f}   |   P = {P:.2f} kN/m "
+                    if st.button("Run ▶", type="primary", key="strap_run"):
+                        required_fields = [
+                            normal_stress, phi, cohesion, length,
+                            soil_classification, d50, unit_weight,
+                            water_content, strap_width, num_straps, tensile_strength
+                        ]
+                    
+                        if None in required_fields:
+                            st.error("Please fill in all required fields")
+                        else:
+                            # Create input array with exactly 11 features in correct order
+                            inputs = np.array([
+                                phi,
+                                cohesion,
+                                normal_stress,
+                                length,
+                                geostrap_classification_map[soil_classification],
+                                d50,
+                                unit_weight,
+                                water_content,
+                                strap_width,
+                                num_straps,
+                                tensile_strength
+                            ], dtype=np.float32).reshape(1, -1)
+                            
+                            u_pred, P = calculate_geostrap_u(inputs)
+                    
+                            if u_pred is not None:
+                                st.session_state.result = f"μ* = {u_pred:.4f}   |   P = {P:.2f} kN/m "
 
     # Common controls
     st.markdown("---")
@@ -598,10 +609,12 @@ def update_bearing_members():
 
 def clear_all():
     st.session_state.clear()
+    # Reinitialize critical states
     st.session_state.scale_factor = 5
     st.session_state.data = None
     st.session_state.current_tab = "Geogrid"
-    st.rerun()
+    st.session_state.active_subtab = "Soil Parameters"
+    st.rerun()  # Force refresh
 
 def show_disclaimer():
     disclaimer = """DATA FORMAT REQUIREMENTS:
