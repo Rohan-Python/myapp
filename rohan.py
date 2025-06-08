@@ -342,7 +342,20 @@ def main():
                 unit_weight = st.number_input("Unit Weight (kN/m³):", value=None, placeholder="Enter value", step=0.1,
                                               format="%.2f", key="geo_unit_weight")
                 
-                tab2 = st.tabs(["Geogrid Parameters"])
+	        if st.button("Go to Geogrid Parameters", key="bottom_geogrid_tab"):
+	                # Use JavaScript to click the Geogrid Parameters tab
+	                js = """
+	                <script>
+	                // Find the tab button for Geogrid Parameters and click it
+	                var tabs = window.parent.document.querySelectorAll('[data-testid="stTab"] button');
+	                tabs.forEach(function(tab) {
+	                    if (tab.textContent.includes('Geogrid Parameters')) {
+	                        tab.click();
+	                    }
+	                });
+	                </script>
+	                """
+	                st.components.v1.html(js, height=0)
                 
 
             with col2:
@@ -379,6 +392,21 @@ def main():
                 tensile_strength = st.number_input("Tensile Strength (kN/m):", value=None, placeholder="Enter value",
                                                    step=0.1, format="%.1f", key="geo_tensile_strength")
                 geogrid_type = st.selectbox("Geogrid Type:", options=list(geogrid_type_map.keys()), key="geo_geogrid_type")
+		    
+		if st.button("Back to Soil Parameters", key="back_to_soil"):
+	                # Use JavaScript to click the Soil Parameters tab
+	                js = """
+	                <script>
+	                // Find the tab button for Soil Parameters and click it
+	                var tabs = window.parent.document.querySelectorAll('[data-testid="stTab"] button');
+	                tabs.forEach(function(tab) {
+	                    if (tab.textContent.includes('Soil Parameters')) {
+	                        tab.click();
+	                    }
+	                });
+	                </script>
+	                """
+	                st.components.v1.html(js, height=0)
 
             with col2:
                 geogrid_img = get_image_base64("Geogrid.png")
