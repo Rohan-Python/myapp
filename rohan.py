@@ -256,6 +256,9 @@ def main():
         st.session_state.data = None
     if 'current_tab' not in st.session_state:
         st.session_state.current_tab = "Geogrid"
+    # Add this to your session state initialization
+    if 'current_subtab' not in st.session_state:
+        st.session_state.current_subtab = "Soil Parameters"
 
     # CSS for styling
     st.markdown("""
@@ -323,35 +326,28 @@ def main():
 
     # Geogrid Tab (unchanged from original code)
     if st.session_state.current_tab == "Geogrid":
-        tab1, tab2 = st.tabs(["Soil Parameters", "Geogrid Parameters"])
-
-        with tab1:
+        # Replace the tabs with conditional rendering
+        if st.session_state.current_subtab == "Soil Parameters":
             col1, col2 = st.columns([1, 1])
-
+    
             with col1:
                 st.header("Soil Parameters")
                 normal_stress = st.number_input("Normal Stress (kPa):", value=None, placeholder="Enter value", step=0.1,
-                                                format="%.2f", key="geo_normal_stress")
-                phi = st.number_input("Φ' (degrees):", value=None, placeholder="Enter value", step=0.1, format="%.1f", key="geo_phi")
+                                              format="%.2f", key="geo_normal_stress")
+                phi = st.number_input("Φ' (degrees):", value=None, placeholder="Enter value", step=0.1, 
+                                    format="%.1f", key="geo_phi")
                 cohesion = st.number_input("Cohesion c' (kPa):", value=None, placeholder="Enter value", step=0.1,
-                                           format="%.2f", key="geo_cohesion")
+                                         format="%.2f", key="geo_cohesion")
                 unit_weight = st.number_input("Unit Weight (kN/m³):", value=None, placeholder="Enter value", step=0.1,
-                                              format="%.2f", key="geo_unit_weight")
+                                            format="%.2f", key="geo_unit_weight")
                 water_content = st.number_input("Water Content (%):", value=None, placeholder="Enter value", step=0.1,
-                                                format="%.1f", key="geo_water_content")
-                d50 = st.number_input("D50 (mm):", value=None, placeholder="Enter value", step=0.1, format="%.2f", key="geo_d50")
-                soil_classification = st.selectbox("Soil Classification:", options=list(geogrid_classification_map.keys()), key="geo_soil_class")
-# Add navigation buttons at the bottom
-            st.markdown('<div class="tab-buttons"></div>', unsafe_allow_html=True)
-            col1, col2 = st.columns(2)
-            # In the Geogrid Soil Parameters tab
-            with col1:
-                if st.button("Soil Parameters", disabled=True, help="You are currently on this tab"):
-                    pass
-            with col2:
-                if st.button("Geogrid Parameters", key="geo_bottom_nav_to_grid"):
-                    st.session_state.current_tab = "Geogrid"  # Ensure main tab is correct
-                    st.rerun()  # This will refresh and show tab2
+                                              format="%.1f", key="geo_water_content")
+                d50 = st.number_input("D50 (mm):", value=None, placeholder="Enter value", step=0.1, 
+                                    format="%.2f", key="geo_d50")
+                soil_classification = st.selectbox("Soil Classification:", 
+                                                options=list(geogrid_classification_map.keys()), 
+                                                key="geo_soil_class")
+    
             with col2:
                 soil_img = get_image_base64("PulloutboxDiagram.jpg")
                 if soil_img:
@@ -367,36 +363,35 @@ def main():
                     "<p style='text-align: center; font-weight: bold; font-size: 20px;'>Soil-Geogrid Interaction</p>",
                     unsafe_allow_html=True
                 )
-
-        with tab2:
+    
+            # Navigation buttons at bottom
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("Soil Parameters", disabled=True, help="You are currently on this tab"):
+                    pass
+            with col2:
+                if st.button("Geogrid Parameters", key="geo_to_grid"):
+                    st.session_state.current_subtab = "Geogrid Parameters"
+                    st.rerun()
+    
+        elif st.session_state.current_subtab == "Geogrid Parameters":
             col1, col2 = st.columns([1, 1])
-
+    
             with col1:
                 st.header("Geogrid Parameters")
-                length = st.number_input("Length (mm):", value=None, placeholder="Enter value", step=1.0, format="%.1f",
-                                         key="geo_length", on_change=update_bearing_members)
+                length = st.number_input("Length (mm):", value=None, placeholder="Enter value", step=1.0, 
+                                       format="%.1f", key="geo_length", on_change=update_bearing_members)
                 md_aperture = st.number_input("MD Aperture (mm):", value=None, placeholder="Enter value", step=0.1,
-                                              format="%.1f",
-                                              key="geo_md_aperture", on_change=update_bearing_members)
+                                            format="%.1f", key="geo_md_aperture", on_change=update_bearing_members)
                 cmd_aperture = st.number_input("CMD Aperture (mm):", value=None, placeholder="Enter value", step=0.1,
-                                               format="%.1f",
-                                               key="geo_cmd_aperture", on_change=update_bearing_members)
-                bearing_members = st.number_input("Bearing Members:", value=None, placeholder="Enter value", step=1,
-                                                  key="geo_bearing_members")
+                                             format="%.1f", key="geo_cmd_aperture", on_change=update_bearing_members)
+                bearing_members = st.number_input("Bearing Members:", value=None, placeholder="Enter value", 
+                                                step=1, key="geo_bearing_members")
                 tensile_strength = st.number_input("Tensile Strength (kN/m):", value=None, placeholder="Enter value",
-                                                   step=0.1, format="%.1f", key="geo_tensile_strength")
-                geogrid_type = st.selectbox("Geogrid Type:", options=list(geogrid_type_map.keys()), key="geo_geogrid_type")
-# Add navigation buttons at the bottom
-            st.markdown('<div class="tab-buttons"></div>', unsafe_allow_html=True)
-            col1, col2 = st.columns(2)
-            # In the Geogrid Parameters tab
-            with col1:
-                if st.button("Soil Parameters", key="geo_bottom_nav_to_soil"):
-                    st.session_state.current_tab = "Geogrid"  # Ensure main tab is correct
-                    st.rerun()  # This will refresh and show tab1
-            with col2:
-                if st.button("Geogrid Parameters", disabled=True, help="You are currently on this tab"):
-                    pass
+                                                step=0.1, format="%.1f", key="geo_tensile_strength")
+                geogrid_type = st.selectbox("Geogrid Type:", options=list(geogrid_type_map.keys()), 
+                                          key="geo_geogrid_type")
+    
             with col2:
                 geogrid_img = get_image_base64("Geogrid.png")
                 if geogrid_img:
@@ -405,60 +400,70 @@ def main():
                         unsafe_allow_html=True
                     )
                 st.markdown("<p style='text-align: center; font-weight: bold;'>Geogrid Structure Reference</p>",
-                            unsafe_allow_html=True)
-
+                          unsafe_allow_html=True)
+    
                 st.markdown("---")
                 col1, col2 = st.columns(2)
                 with col1:
                     if st.button("Zoom In", key="geo_zoom_in"):
                         st.session_state.scale_factor *= 1.2
+                        st.rerun()
                 with col2:
                     if st.button("Zoom Out", key="geo_zoom_out"):
                         st.session_state.scale_factor *= 0.8
-
+                        st.rerun()
+    
                 if length and md_aperture and cmd_aperture:
                     fig = draw_geogrid(float(length), float(md_aperture), float(cmd_aperture),
-                                       st.session_state.scale_factor)
+                                      st.session_state.scale_factor)
                     st.pyplot(fig)
-
-                if st.button("Run ▶", type="primary", key="geo_run"):
-                    required_fields = [
-                        normal_stress, phi, cohesion, length,
-                        d50, unit_weight, water_content,
-                        md_aperture, cmd_aperture, tensile_strength
-                    ]
-
-                    if None in required_fields:
-                        st.error("Please fill in all required fields")
-                    else:
-                        inputs = np.array([
-                            phi,
-                            cohesion,
-                            normal_stress,
-                            length,
-                            geogrid_classification_map[soil_classification],
-                            d50,
-                            unit_weight,
-                            water_content,
-                            geogrid_type_map[geogrid_type],
-                            bearing_members if bearing_members else floor(float(length) / float(md_aperture)),
-                            md_aperture,
-                            cmd_aperture,
-                            tensile_strength
-                        ], dtype=np.float32).reshape(1, -1)
-
-                        u_pred, P = calculate_geogrid_u(inputs)
-
-                        if u_pred is not None:
-                            st.session_state.result = f"μ* = {u_pred:.4f}   |   P = {P:.2f} kN/m "
+    
+            # Navigation buttons at bottom
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("Soil Parameters", key="geo_to_soil"):
+                    st.session_state.current_subtab = "Soil Parameters"
+                    st.rerun()
+            with col2:
+                if st.button("Geogrid Parameters", disabled=True, help="You are currently on this tab"):
+                    pass
+    
+            if st.button("Run ▶", type="primary", key="geo_run"):
+                required_fields = [
+                    normal_stress, phi, cohesion, length,
+                    d50, unit_weight, water_content,
+                    md_aperture, cmd_aperture, tensile_strength
+                ]
+    
+                if None in required_fields:
+                    st.error("Please fill in all required fields")
+                else:
+                    inputs = np.array([
+                        phi,
+                        cohesion,
+                        normal_stress,
+                        length,
+                        geogrid_classification_map[soil_classification],
+                        d50,
+                        unit_weight,
+                        water_content,
+                        geogrid_type_map[geogrid_type],
+                        bearing_members if bearing_members else floor(float(length) / float(md_aperture)),
+                        md_aperture,
+                        cmd_aperture,
+                        tensile_strength
+                    ], dtype=np.float32).reshape(1, -1)
+    
+                    u_pred, P = calculate_geogrid_u(inputs)
+    
+                    if u_pred is not None:
+                        st.session_state.result = f"μ* = {u_pred:.4f}   |   P = {P:.2f} kN/m"
 
     # Geostrap Tab (updated for 11 inputs)
     elif st.session_state.current_tab == "Geostrap":
-        tab1, tab2 = st.tabs(["Soil Parameters", "Geostrap Parameters"])
-
-        with tab1:
+        if st.session_state.current_subtab == "Soil Parameters":
             col1, col2 = st.columns([1, 1])
-
+    
             with col1:
                 st.header("Soil Parameters")
                 normal_stress = st.number_input("Normal Stress (kPa):", value=None, placeholder="Enter value", step=0.1,
@@ -470,23 +475,13 @@ def main():
                 length = st.number_input("Length (mm):", value=None, placeholder="Enter value", step=1.0,
                                        format="%.1f", key="strap_length")
                 soil_classification = st.selectbox("Soil Classification:", 
-                                                 options=list(geostrap_classification_map.keys()), 
-                                                 key="strap_soil_class")
+                                                options=list(geostrap_classification_map.keys()), 
+                                                key="strap_soil_class")
                 d50 = st.number_input("D50 (mm):", value=None, placeholder="Enter value", step=0.1, 
-                                     format="%.2f", key="strap_d50")
+                                    format="%.2f", key="strap_d50")
                 unit_weight = st.number_input("Unit Weight (kN/m³):", value=None, placeholder="Enter value", step=0.1,
-                                           format="%.2f", key="strap_unit_weight")
- # Add navigation buttons at the bottom
-            st.markdown('<div class="tab-buttons"></div>', unsafe_allow_html=True)
-            col1, col2 = st.columns(2)
-            # In the Geostrap Soil Parameters tab
-            with col1:
-                if st.button("Soil Parameters", disabled=True, help="You are currently on this tab"):
-                    pass
-            with col2:
-                if st.button("Geostrap Parameters", key="strap_bottom_nav_to_strap"):
-                    st.session_state.current_tab = "Geostrap"  # Ensure main tab is correct
-                    st.rerun()  # This will refresh and show tab2
+                                            format="%.2f", key="strap_unit_weight")
+    
             with col2:
                 soil_img = get_image_base64("PulloutboxDiagram.jpg")
                 if soil_img:
@@ -502,31 +497,31 @@ def main():
                     "<p style='text-align: center; font-weight: bold; font-size: 20px;'>Soil-Geostrap Interaction</p>",
                     unsafe_allow_html=True
                 )
-
-        with tab2:
+    
+            # Navigation buttons at bottom
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("Soil Parameters", disabled=True, help="You are currently on this tab"):
+                    pass
+            with col2:
+                if st.button("Geostrap Parameters", key="strap_to_strap"):
+                    st.session_state.current_subtab = "Geostrap Parameters"
+                    st.rerun()
+    
+        elif st.session_state.current_subtab == "Geostrap Parameters":
             col1, col2 = st.columns([1, 1])
-
+    
             with col1:
                 st.header("Geostrap Parameters")
                 water_content = st.number_input("Water Content (%):", value=None, placeholder="Enter value", step=0.1,
-                                             format="%.1f", key="strap_water_content")
+                                              format="%.1f", key="strap_water_content")
                 strap_width = st.number_input("Width of Straps (mm):", value=None, placeholder="Enter value", 
-                                           step=1.0, format="%.1f", key="strap_width")
+                                            step=1.0, format="%.1f", key="strap_width")
                 num_straps = st.number_input("Number of Straps:", value=None, placeholder="Enter value", 
                                            step=1, key="num_straps")
                 tensile_strength = st.number_input("Tensile Strength (kN):", value=None, placeholder="Enter value",
                                                  step=0.1, format="%.1f", key="strap_tensile_strength")
-# Add navigation buttons at the bottom
-            st.markdown('<div class="tab-buttons"></div>', unsafe_allow_html=True)
-            col1, col2 = st.columns(2)
-            # In the Geostrap Parameters tab
-            with col1:
-                if st.button("Soil Parameters", key="strap_bottom_nav_to_soil"):
-                    st.session_state.current_tab = "Geostrap"  # Ensure main tab is correct
-                    st.rerun()  # This will refresh and show tab1
-            with col2:
-                if st.button("Geostrap Parameters", disabled=True, help="You are currently on this tab"):
-                    pass
+    
             with col2:
                 geostrap_img = get_image_base64("Geostrap.png")
                 if geostrap_img:
@@ -536,36 +531,45 @@ def main():
                     )
                 st.markdown("<p style='text-align: center; font-weight: bold;'>Geostrap Structure Reference</p>",
                           unsafe_allow_html=True)
-
-                if st.button("Run ▶", type="primary", key="strap_run"):
-                    required_fields = [
-                        normal_stress, phi, cohesion, length,
-                        soil_classification, d50, unit_weight,
-                        water_content, strap_width, num_straps, tensile_strength
-                    ]
-                
-                    if None in required_fields:
-                        st.error("Please fill in all required fields")
-                    else:
-                        # Create input array with exactly 11 features in correct order
-                        inputs = np.array([
-                            phi,
-                            cohesion,
-                            normal_stress,
-                            length,
-                            geostrap_classification_map[soil_classification],
-                            d50,
-                            unit_weight,
-                            water_content,
-                            strap_width,
-                            num_straps,
-                            tensile_strength
-                        ], dtype=np.float32).reshape(1, -1)
-                        
-                        u_pred, P = calculate_geostrap_u(inputs)
-                
-                        if u_pred is not None:
-                            st.session_state.result = f"μ* = {u_pred:.4f}   |   P = {P:.2f} kN/m "
+    
+            # Navigation buttons at bottom
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("Soil Parameters", key="strap_to_soil"):
+                    st.session_state.current_subtab = "Soil Parameters"
+                    st.rerun()
+            with col2:
+                if st.button("Geostrap Parameters", disabled=True, help="You are currently on this tab"):
+                    pass
+    
+            if st.button("Run ▶", type="primary", key="strap_run"):
+                required_fields = [
+                    normal_stress, phi, cohesion, length,
+                    soil_classification, d50, unit_weight,
+                    water_content, strap_width, num_straps, tensile_strength
+                ]
+            
+                if None in required_fields:
+                    st.error("Please fill in all required fields")
+                else:
+                    inputs = np.array([
+                        phi,
+                        cohesion,
+                        normal_stress,
+                        length,
+                        geostrap_classification_map[soil_classification],
+                        d50,
+                        unit_weight,
+                        water_content,
+                        strap_width,
+                        num_straps,
+                        tensile_strength
+                    ], dtype=np.float32).reshape(1, -1)
+                    
+                    u_pred, P = calculate_geostrap_u(inputs)
+            
+                    if u_pred is not None:
+                        st.session_state.result = f"μ* = {u_pred:.4f}   |   P = {P:.2f} kN/m"
 
     # Common controls
     st.markdown("---")
