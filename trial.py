@@ -625,40 +625,48 @@ def main():
                     pass
     
             if st.button("Run ▶", type="primary", key="geo_run"):
-                required_fields = [
-                    st.session_state.get('geo_normal_stress'),
-                    st.session_state.get('geo_phi'),
-                    st.session_state.get('geo_cohesion'),
-                    st.session_state.get('geo_length'),
-                    st.session_state.get('geo_d50'),
-                    st.session_state.get('geo_unit_weight'),
-                    st.session_state.get('geo_water_content'),
-                    st.session_state.get('geo_md_aperture'),
-                    st.session_state.get('geo_cmd_aperture'),
-                    st.session_state.get('geo_tensile_strength')
-                ]
-    
-                if None in required_fields:
+                # Get all values directly from session state
+                values = {
+                    'normal_stress': st.session_state.get('geo_normal_stress'),
+                    'phi': st.session_state.get('geo_phi'),
+                    'cohesion': st.session_state.get('geo_cohesion'),
+                    'length': st.session_state.get('geo_length'),
+                    'd50': st.session_state.get('geo_d50'),
+                    'unit_weight': st.session_state.get('geo_unit_weight'),
+                    'water_content': st.session_state.get('geo_water_content'),
+                    'md_aperture': st.session_state.get('geo_md_aperture'),
+                    'cmd_aperture': st.session_state.get('geo_cmd_aperture'),
+                    'tensile_strength': st.session_state.get('geo_tensile_strength'),
+                    'soil_class': st.session_state.get('geo_soil_class'),
+                    'geogrid_type': st.session_state.get('geo_geogrid_type')
+                }
+                
+                # Check for None values
+                if any(v is None for v in values.values()):
                     st.error("Please fill in all required fields")
                 else:
+                    # Calculate bearing members if not provided
+                    bearing_members = (st.session_state.geo_bearing_members if st.session_state.geo_bearing_members 
+                                      else floor(float(st.session_state.geo_length) / float(st.session_state.geo_md_aperture))
+                    
                     inputs = np.array([
-                        st.session_state.geo_phi,
-                        st.session_state.geo_cohesion,
-                        st.session_state.geo_normal_stress,
-                        st.session_state.geo_length,
-                        geogrid_classification_map[st.session_state.geo_soil_class],
-                        st.session_state.geo_d50,
-                        st.session_state.geo_unit_weight,
-                        st.session_state.geo_water_content,
-                        geogrid_type_map[st.session_state.geo_geogrid_type],
-                        st.session_state.geo_bearing_members if st.session_state.geo_bearing_members else floor(float(st.session_state.geo_length) / float(st.session_state.geo_md_aperture)),
-                        st.session_state.geo_md_aperture,
-                        st.session_state.geo_cmd_aperture,
-                        st.session_state.geo_tensile_strength
+                        values['phi'],
+                        values['cohesion'],
+                        values['normal_stress'],
+                        values['length'],
+                        geogrid_classification_map[values['soil_class']],
+                        values['d50'],
+                        values['unit_weight'],
+                        values['water_content'],
+                        geogrid_type_map[values['geogrid_type']],
+                        bearing_members,
+                        values['md_aperture'],
+                        values['cmd_aperture'],
+                        values['tensile_strength']
                     ], dtype=np.float32).reshape(1, -1)
-    
+            
                     u_pred, P = calculate_geogrid_u(inputs)
-    
+            
                     if u_pred is not None:
                         st.session_state.result = f"μ* = {u_pred:.4f}   |   P = {P:.2f} kN/m"
 
@@ -746,39 +754,41 @@ def main():
                     pass
     
             if st.button("Run ▶", type="primary", key="strap_run"):
-                required_fields = [
-                    st.session_state.get('strap_normal_stress'),
-                    st.session_state.get('strap_phi'),
-                    st.session_state.get('strap_cohesion'),
-                    st.session_state.get('strap_length'),
-                    st.session_state.get('strap_soil_class'),
-                    st.session_state.get('strap_d50'),
-                    st.session_state.get('strap_unit_weight'),
-                    st.session_state.get('strap_water_content'),
-                    st.session_state.get('strap_width'),
-                    st.session_state.get('num_straps'),
-                    st.session_state.get('strap_tensile_strength')
-                ]
-            
-                if None in required_fields:
+                # Get all values directly from session state
+                values = {
+                    'normal_stress': st.session_state.get('strap_normal_stress'),
+                    'phi': st.session_state.get('strap_phi'),
+                    'cohesion': st.session_state.get('strap_cohesion'),
+                    'length': st.session_state.get('strap_length'),
+                    'soil_class': st.session_state.get('strap_soil_class'),
+                    'd50': st.session_state.get('strap_d50'),
+                    'unit_weight': st.session_state.get('strap_unit_weight'),
+                    'water_content': st.session_state.get('strap_water_content'),
+                    'strap_width': st.session_state.get('strap_width'),
+                    'num_straps': st.session_state.get('num_straps'),
+                    'tensile_strength': st.session_state.get('strap_tensile_strength')
+                }
+                
+                # Check for None values
+                if any(v is None for v in values.values()):
                     st.error("Please fill in all required fields")
                 else:
                     inputs = np.array([
-                        st.session_state.strap_phi,
-                        st.session_state.strap_cohesion,
-                        st.session_state.strap_normal_stress,
-                        st.session_state.strap_length,
-                        geostrap_classification_map[st.session_state.strap_soil_class],
-                        st.session_state.strap_d50,
-                        st.session_state.strap_unit_weight,
-                        st.session_state.strap_water_content,
-                        st.session_state.strap_width,
-                        st.session_state.num_straps,
-                        st.session_state.strap_tensile_strength
+                        values['phi'],
+                        values['cohesion'],
+                        values['normal_stress'],
+                        values['length'],
+                        geostrap_classification_map[values['soil_class']],
+                        values['d50'],
+                        values['unit_weight'],
+                        values['water_content'],
+                        values['strap_width'],
+                        values['num_straps'],
+                        values['tensile_strength']
                     ], dtype=np.float32).reshape(1, -1)
                     
                     u_pred, P = calculate_geostrap_u(inputs)
-            
+                
                     if u_pred is not None:
                         st.session_state.result = f"μ* = {u_pred:.4f}   |   P = {P:.2f} kN/m"
 
