@@ -344,8 +344,7 @@ def main():
     
     if st.session_state.current_tab == "Geogrid":
         tab1, tab2 = st.tabs(["Soil Parameters", "Geogrid Parameters"])	
-
-            with col2:
+	    with col2:
                 soil_img = get_image_base64("PulloutboxDiagram.jpg")
                 if soil_img:
                     st.markdown(
