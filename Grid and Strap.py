@@ -359,6 +359,10 @@ def main():
                     "<p style='text-align: center; font-weight: bold; font-size: 20px;'>Soil-Geogrid Interaction</p>",
                     unsafe_allow_html=True
                 )
+                # NEXT BUTTON (Soil Parameters → Geogrid Parameters)
+                if st.button("Next →", key="geo_next_soil_to_grid"):
+                    st.session_state.active_subtab = "Geogrid Parameters"  # Optional: Track subtab if needed
+                    st.rerun()
 
         with tab2:
             col1, col2 = st.columns([1, 1])
@@ -388,6 +392,10 @@ def main():
                     )
                 st.markdown("<p style='text-align: center; font-weight: bold;'>Geogrid Structure Reference</p>",
                             unsafe_allow_html=True)
+                # PREVIOUS BUTTON (Geogrid Parameters → Soil Parameters)
+                if st.button("← Previous", key="geo_prev_grid_to_soil"):
+                    st.session_state.active_subtab = "Soil Parameters"
+                    st.rerun()
 
                 st.markdown("---")
                 col1, col2 = st.columns(2)
