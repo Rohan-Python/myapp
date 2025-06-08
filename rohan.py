@@ -341,7 +341,16 @@ def main():
                                                 format="%.1f", key="geo_water_content")
                 d50 = st.number_input("D50 (mm):", value=None, placeholder="Enter value", step=0.1, format="%.2f", key="geo_d50")
                 soil_classification = st.selectbox("Soil Classification:", options=list(geogrid_classification_map.keys()), key="geo_soil_class")
-
+# Add navigation buttons at the bottom
+            st.markdown('<div class="tab-buttons"></div>', unsafe_allow_html=True)
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("Soil Parameters", disabled=True, help="You are currently on this tab"):
+                    pass
+            with col2:
+                if st.button("Geogrid Parameters", key="geo_bottom_nav_to_grid"):
+                    st.session_state.active_subtab = "Geogrid Parameters"
+                    st.rerun()
             with col2:
                 soil_img = get_image_base64("PulloutboxDiagram.jpg")
                 if soil_img:
