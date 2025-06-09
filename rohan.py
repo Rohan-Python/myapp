@@ -335,13 +335,15 @@ def main():
                 phi = st.number_input("Φ' (degrees):", value=None, placeholder="Enter value", step=0.1, format="%.1f", key="geo_phi")
                 cohesion = st.number_input("Cohesion c' (kPa):", value=None, placeholder="Enter value", step=0.1,
                                            format="%.2f", key="geo_cohesion")
+		water_content = st.number_input("Water Content (%):", value=None, placeholder="Enter value", step=0.1,
+                                                format="%.1f", key="geo_water_content")
+		soil_classification = st.selectbox("Soil Classification:", options=list(geogrid_classification_map.keys()), key="geo_soil_class")
+                d50 = st.number_input("D50 (mm):", value=None, placeholder="Enter value", step=0.1, format="%.2f", key="geo_d50")
                 unit_weight = st.number_input("Unit Weight (kN/m³):", value=None, placeholder="Enter value", step=0.1,
                                               format="%.2f", key="geo_unit_weight")
-                water_content = st.number_input("Water Content (%):", value=None, placeholder="Enter value", step=0.1,
-                                                format="%.1f", key="geo_water_content")
-                d50 = st.number_input("D50 (mm):", value=None, placeholder="Enter value", step=0.1, format="%.2f", key="geo_d50")
-                soil_classification = st.selectbox("Soil Classification:", options=list(geogrid_classification_map.keys()), key="geo_soil_class")
-
+                
+                
+                
             with col2:
                 soil_img = get_image_base64("PulloutboxDiagram.jpg")
                 if soil_img:
@@ -447,8 +449,8 @@ def main():
                                     format="%.1f", key="strap_phi")
                 cohesion = st.number_input("Cohesion c' (kPa):", value=None, placeholder="Enter value", step=0.1,
                                          format="%.2f", key="strap_cohesion")
-                length = st.number_input("Length (mm):", value=None, placeholder="Enter value", step=1.0,
-                                       format="%.1f", key="strap_length")
+                water_content = st.number_input("Water Content (%):", value=None, placeholder="Enter value", step=0.1,
+                                             format="%.1f", key="strap_water_content")
                 soil_classification = st.selectbox("Soil Classification:", 
                                                  options=list(geostrap_classification_map.keys()), 
                                                  key="strap_soil_class")
@@ -478,8 +480,9 @@ def main():
 
             with col1:
                 st.header("Geostrap Parameters")
-                water_content = st.number_input("Water Content (%):", value=None, placeholder="Enter value", step=0.1,
-                                             format="%.1f", key="strap_water_content")
+                
+		length = st.number_input("Length (mm):", value=None, placeholder="Enter value", step=1.0,
+                                       format="%.1f", key="strap_length")
                 strap_width = st.number_input("Width of Straps (mm):", value=None, placeholder="Enter value", 
                                            step=1.0, format="%.1f", key="strap_width")
                 num_straps = st.number_input("Number of Straps:", value=None, placeholder="Enter value", 
